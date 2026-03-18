@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: '/fitness-gym',
+  basePath: '/gym-website',
 };
 
 export default nextConfig;
