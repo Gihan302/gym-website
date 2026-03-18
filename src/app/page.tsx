@@ -5,6 +5,7 @@ import GallerySection from "../components/sections/GallerySection";
 import PricingSection from "../components/sections/PricingSection";
 import ContactSection from "../components/sections/ContactSection";
 import ClientSection from "../components/sections/ClientSection";
+import WhyChooseUsSection from "../components/sections/WhyChooseUsSection";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <AboutSection id="about" />
         <ServicesSection id="services" />
         <ClientSection id="clients" />
+        <WhyChooseUsSection id="why-choose-us" />
         <GallerySection id="gallery" />
         <PricingSection id="pricing" />
         <ContactSection id="contact" />
