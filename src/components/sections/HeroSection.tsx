@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Button from "../ui/Button";
 
 // ─── Social icon SVGs ────────────────────────────────────────
 const FacebookIcon = () => (
@@ -40,61 +39,80 @@ export default function HeroSection({ id }: { id: string }) {
   return (
     <section
       id={id}
-      className="relative min-h-[90vh] lg:min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-screen flex items-center overflow-hidden"
       style={{ backgroundColor: "var(--black)" }}
     >
-      {/* ── Dark overlay on top of bg image ─────── */}
-      <div
-        className="absolute inset-0 z-[1]"
-        style={{
-          background:
-            "linear-gradient(to right, var(--black) 0%, rgba(4,3,4,0.8) 50%, rgba(4,3,4,0.3) 100%)",
-        }}
-      />
 
-      {/* ── Athlete image (right side, absolute) ─── */}
-      <div className="absolute right-0 top-0 h-full w-full md:w-[50%] lg:w-[45%] xl:w-[40%] z-0">
+      {/* ── Athlete image — right half, bottom-anchored ── */}
+      {/*
+        KEY FIXES vs previous version:
+        1. Width capped at 45% on desktop — image no longer bleeds left
+        2. object-position: top center — shows face/torso, not cropped weirdly
+        3. Gradient covers ~50% from left so text is always readable
+        4. Image starts at the header bottom (top: 0) and fills to bottom
+      */}
+      <div
+        className="absolute right-0 top-0 bottom-0 hidden md:block"
+        style={{ width: "45%", position: 'relative' }}          // ← was 50–100%, now fixed 45%
+      >
         <Image
           src="/Hero image.jpg"
           alt="Fitness athlete"
           fill
-          className="object-cover object-center md:object-top"
           priority
-          sizes="(max-width: 76px) 10vw, 40vw"
+          sizes="45vw"
+          className="object-cover"
+          style={{ objectPosition: "center top" }}   // ← show top of image (face/body)
         />
 
-        {/* Gradient fade left edge of image into bg (desktop only) */}
-        <div
-          className="absolute inset-0 hidden md:block"
-          style={{
-            background:
-              "linear-gradient(to right, var(--black) 0%, transparent 40%)",
-          }}
-        />
-        {/* Bottom fade to prevent harsh cut */}
+        {/* Left-side fade: blends image into dark bg */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to top, var(--black) 0%, transparent 20%)",
+              "linear-gradient(to right, var(--black) 0%, transparent 45%)",
+          }}
+        />
+
+        {/* Bottom fade: softens the image bottom edge */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, var(--black) 0%, transparent 18%)",
           }}
         />
       </div>
 
-      {/* ── Main content ─────────────────────────── */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
-        <div className="max-w-2xl">
+      {/* ── Subtle overall dark overlay (entire section) ── */}
+      <div
+        className="absolute inset-0 z-[1] pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to right, rgba(4,3,4,0.85) 0%, rgba(4,3,4,0.55) 55%, rgba(4,3,4,0.0) 100%)",
+        }}
+      />
 
-          {/* Headline */}
+      {/* ── Main text content ─────────────────────── */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24">
+        {/*
+          Content occupies left ~55% of screen so it never overlaps image.
+          On mobile it goes full width since image is hidden.
+        */}
+        <div style={{ maxWidth: "min(600px, 55%)" }} className="max-md:max-w-full">
+
+          {/* ── Headline ─────────────────────────── */}
           <h1
-            className="uppercase font-bold leading-none tracking-tight text-white mb-6 animate-fade-up"
+            className="uppercase animate-fade-up"
             style={{
-              fontFamily: "var(--font-primary)",
-              fontSize: "var(--text-hero)",
-              fontWeight: "var(--weight-bold)",
-              lineHeight: "var(--leading-tight)",
+              fontFamily:   "var(--font-primary)",
+              fontSize:     "var(--text-hero)",
+              fontWeight:   "var(--weight-bold)",
+              lineHeight:   "var(--leading-tight)",
               letterSpacing: "-0.01em",
+              color:        "var(--cream)",
               animationDelay: "0ms",
+              marginBottom: "1.5rem",
             }}
           >
             Reach Your<br />
@@ -102,15 +120,17 @@ export default function HeroSection({ id }: { id: string }) {
             The Next Level
           </h1>
 
-          {/* Body text */}
+          {/* ── Body text ────────────────────────── */}
           <p
-            className="mb-10 max-w-md animate-fade-up"
+            className="animate-fade-up"
             style={{
-              fontFamily: "var(--font-primary)",
-              fontSize: "var(--text-base)",
-              fontWeight: "var(--weight-regular)",
-              lineHeight: "var(--leading-normal)",
-              color: "rgba(241,240,235,0.7)",
+              fontFamily:  "var(--font-primary)",
+              fontSize:    "var(--text-base)",
+              fontWeight:  "var(--weight-regular)",
+              lineHeight:  "var(--leading-normal)",
+              color:       "rgba(241,240,235,0.65)",
+              maxWidth:    "480px",
+              marginBottom: "2.5rem",
               animationDelay: "120ms",
             }}
           >
@@ -120,59 +140,69 @@ export default function HeroSection({ id }: { id: string }) {
             aliquip ex ea commodo consequat.
           </p>
 
-          {/* CTA buttons */}
+          {/* ── CTA Buttons ──────────────────────── */}
           <div
             className="flex flex-wrap gap-4 animate-fade-up"
             style={{ animationDelay: "240ms" }}
           >
-            {/* LEARN MORE — white outline */}
+            {/* LEARN MORE — white/cream outline */}
             <button
-              className="group relative font-bold uppercase tracking-widest transition-all duration-200"
+              className="uppercase transition-all duration-200"
               style={{
-                fontFamily: "var(--font-primary)",
-                fontWeight: "var(--weight-bold)",
+                fontFamily:    "var(--font-primary)",
+                fontSize:      "var(--text-sm)",
+                fontWeight:    "var(--weight-bold)",
                 letterSpacing: "var(--tracking-widest)",
-                fontSize: "var(--text-sm)",
-                padding: "0.75rem 2.5rem",
-                background: "transparent",
-                color: "var(--cream)",
-                border: "1.5px solid var(--cream)",
+                padding:       "0.8rem 2.2rem",
+                background:    "transparent",
+                color:         "var(--cream)",
+                border:        "1.5px solid var(--cream)",
+                cursor:        "pointer",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--gold)";
-                (e.currentTarget as HTMLButtonElement).style.color = "var(--gold)";
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.borderColor = "var(--gold)";
+                el.style.color       = "var(--gold)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--cream)";
-                (e.currentTarget as HTMLButtonElement).style.color = "var(--cream)";
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.borderColor = "var(--cream)";
+                el.style.color       = "var(--cream)";
               }}
-              onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+              onClick={() =>
+                document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })
+              }
             >
               Learn More
             </button>
 
             {/* JOIN NOW — gold filled */}
             <button
-              className="font-bold uppercase tracking-widest transition-all duration-200"
+              className="uppercase transition-all duration-200"
               style={{
-                fontFamily: "var(--font-primary)",
-                fontWeight: "var(--weight-bold)",
+                fontFamily:    "var(--font-primary)",
+                fontSize:      "var(--text-sm)",
+                fontWeight:    "var(--weight-bold)",
                 letterSpacing: "var(--tracking-widest)",
-                fontSize: "var(--text-sm)",
-                padding: "0.75rem 2.5rem",
-                background: "var(--gold)",
-                color: "var(--black)",
-                border: "1.5px solid var(--gold)",
+                padding:       "0.8rem 2.2rem",
+                background:    "var(--gold)",
+                color:         "var(--black)",
+                border:        "1.5px solid var(--gold)",
+                cursor:        "pointer",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "#b8880d";
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "#b8880d";
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.background   = "#b8880d";
+                el.style.borderColor  = "#b8880d";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "var(--gold)";
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--gold)";
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.background   = "var(--gold)";
+                el.style.borderColor  = "var(--gold)";
               }}
-              onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+              onClick={() =>
+                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
+              }
             >
               Join Now
             </button>
@@ -181,51 +211,61 @@ export default function HeroSection({ id }: { id: string }) {
         </div>
       </div>
 
-      {/* ── Bottom-left: gold decorative line ────── */}
+      {/* ── Bottom-left: gold decorative rule ────── */}
       <div
-        className="absolute bottom-10 left-4 sm:left-8 lg:left-16 z-10"
-        style={{ width: "3.5rem", height: "3px", backgroundColor: "var(--gold)" }}
+        className="absolute z-10"
+        style={{
+          bottom:          "2.5rem",
+          left:            "clamp(1rem, 4vw, 4rem)",
+          width:           "3.5rem",
+          height:          "3px",
+          backgroundColor: "var(--gold)",
+        }}
       />
 
-      {/* ── Bottom-right: SOCIAL + icons ─────────── */}
-      <div className="absolute bottom-8 right-4 sm:right-8 z-10 flex items-center gap-4">
+      {/* ── Bottom-right: SOCIAL label + icons ───── */}
+      <div
+        className="absolute z-10 flex items-center gap-3"
+        style={{ bottom: "2.5rem", right: "clamp(1rem, 3vw, 2rem)" }}
+      >
         <span
-          className="uppercase tracking-widest"
+          className="uppercase hidden sm:inline"
           style={{
-            fontFamily: "var(--font-primary)",
-            fontSize: "var(--text-xs)",
-            fontWeight: "var(--weight-semibold)",
-            color: "rgba(241,240,235,0.5)",
+            fontFamily:    "var(--font-primary)",
+            fontSize:      "var(--text-xs)",
+            fontWeight:    "var(--weight-semibold)",
             letterSpacing: "var(--tracking-widest)",
+            color:         "rgba(241,240,235,0.45)",
           }}
         >
           Social
         </span>
-        {/* Short line between label and icons */}
+
+        {/* Short rule between label and icons */}
         <div
-          style={{ width: "2rem", height: "1px", backgroundColor: "rgba(241,240,235,0.3)" }}
+          className="hidden sm:block"
+          style={{ width: "1.75rem", height: "1px", backgroundColor: "rgba(241,240,235,0.25)" }}
         />
-        <div className="flex items-center gap-3">
-          {SOCIAL_LINKS.map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={s.label}
-              className="transition-colors duration-200"
-              style={{ color: "rgba(241,240,235,0.6)" }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.6)")
-              }
-            >
-              {s.icon}
-            </a>
-          ))}
-        </div>
+
+        {SOCIAL_LINKS.map((s) => (
+          <a
+            key={s.label}
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={s.label}
+            className="transition-colors duration-200"
+            style={{ color: "rgba(241,240,235,0.55)" }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.55)")
+            }
+          >
+            {s.icon}
+          </a>
+        ))}
       </div>
 
     </section>

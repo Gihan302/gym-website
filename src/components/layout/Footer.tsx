@@ -52,7 +52,7 @@ const CONTACT_INFO = {
 // ─────────────────────────────────────────────
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="font-primary font-semibold uppercase tracking-widest text-sm text-[#F1F0EB] mb-5">
+    <h3 className="font-primary font-semibold uppercase tracking-widest text-sm text-[var(--cream)] mb-5">
       {children}
     </h3>
   );
@@ -61,7 +61,7 @@ function FooterHeading({ children }: { children: React.ReactNode }) {
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   const isExternal = href.startsWith("http") || href.startsWith("mailto");
   const baseClass =
-    "font-primary font-medium uppercase tracking-wider text-sm text-[#F1F0EB]/70 hover:text-[#D5A310] transition-colors duration-200 block leading-relaxed";
+    "font-primary font-medium uppercase tracking-wider text-sm text-[var(--cream)]/70 hover:text-[var(--gold)] transition-colors duration-200 block leading-relaxed";
 
   if (isExternal) {
     return (
@@ -128,12 +128,12 @@ export default function Footer() {
 
               {/* Email */}
               <div>
-                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[#F1F0EB]/40 mb-1">
+                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[var(--cream)]/40 mb-1">
                   E mail
                 </p>
                 <a
                   href={`mailto:${CONTACT_INFO.email}`}
-                  className="font-primary text-sm text-[#F1F0EB]/70 hover:text-[#D5A310] transition-colors duration-200"
+                  className="font-primary text-sm text-[var(--cream)]/70 hover:text-[var(--gold)] transition-colors duration-200"
                 >
                   {CONTACT_INFO.email}
                 </a>
@@ -141,12 +141,12 @@ export default function Footer() {
 
               {/* Phone */}
               <div>
-                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[#F1F0EB]/40 mb-1">
+                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[var(--cream)]/40 mb-1">
                   Phone
                 </p>
                 <a
                   href={`tel:${CONTACT_INFO.phone.replace(/\s/g, "")}`}
-                  className="font-primary text-sm text-[#F1F0EB]/70 hover:text-[#D5A310] transition-colors duration-200"
+                  className="font-primary text-sm text-[var(--cream)]/70 hover:text-[var(--gold)] transition-colors duration-200"
                 >
                   {CONTACT_INFO.phone}
                 </a>
@@ -154,10 +154,10 @@ export default function Footer() {
 
               {/* Location */}
               <div>
-                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[#F1F0EB]/40 mb-1">
+                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[var(--cream)]/40 mb-1">
                   Location
                 </p>
-                <p className="font-primary text-sm text-[#F1F0EB]/70">
+                <p className="font-primary text-sm text-[var(--cream)]/70">
                   {CONTACT_INFO.location}
                 </p>
               </div>
@@ -178,9 +178,9 @@ export default function Footer() {
                   aria-label={social.label}
                   className={[
                     "w-9 h-9 flex items-center justify-center",
-                    "border border-[#2C2C2C] rounded",
-                    "text-[#F1F0EB]/60",
-                    "hover:border-[#D5A310] hover:text-[#D5A310] hover:bg-[#D5A310]/10",
+                    "border border-[var(--charcoal)] rounded",
+                    "text-[var(--cream)]/60",
+                    "hover:border-[var(--gold)] hover:text-[var(--gold)] hover:bg-[var(--gold)]/10",
                     "transition-all duration-200",
                   ].join(" ")}
                 >
@@ -194,14 +194,14 @@ export default function Footer() {
       </div>
 
       {/* ── Bottom copyright bar ─────────────────── */}
-      <div className="border-t border-[#2C2C2C]">
+      <div className="border-t border-[var(--charcoal)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-primary text-xs text-[#F1F0EB]/35 uppercase tracking-wider">
+          <p className="font-primary text-xs text-[var(--cream)]/35 uppercase tracking-wider">
             © {year} Fitness Sports Center. All rights reserved.
           </p>
           <a
             href="#"
-            className="font-primary text-xs text-[#F1F0EB]/35 hover:text-[#D5A310] uppercase tracking-wider transition-colors duration-200"
+            className="font-primary text-xs text-[var(--cream)]/35 hover:text-[var(--gold)] uppercase tracking-wider transition-colors duration-200"
           >
             Privacy Policy
           </a>
