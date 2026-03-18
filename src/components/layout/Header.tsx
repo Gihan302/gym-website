@@ -1,191 +1,286 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import { NAV_LINKS } from "../../lib/constants";
-import Button from "../ui/Button";
 
-// ─────────────────────────────────────────────
-// Header
-// ─────────────────────────────────────────────
 export default function Header() {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled]     = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeHash, setActiveHash] = useState("#home");
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted]       = useState(false);
+  const { theme, setTheme }         = useTheme();
 
-  // Avoid hydration mismatch for theme icon
   useEffect(() => setMounted(true), []);
 
-  // ── Scroll: add solid bg after 20px ──────────
+  // Solid bg after 20px scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ── Track active section via IntersectionObserver ──
+  // Active section tracking
   useEffect(() => {
-    const sectionIds = NAV_LINKS.map((l) => l.href.replace("#", ""));
-
+    const ids = NAV_LINKS.map((l) => l.href.replace("#", ""));
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveHash(`#${entry.target.id}`);
-          }
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActiveHash(`#${e.target.id}`);
         });
       },
       { rootMargin: "-40% 0px -55% 0px" }
     );
-
-    sectionIds.forEach((id) => {
+    ids.forEach((id) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
-
     return () => observer.disconnect();
   }, []);
 
-  // ── Close mobile menu on resize ──────────────
+  // Close mobile on resize
   useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth >= 1024) setMobileOpen(false);
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    const fn = () => { if (window.innerWidth >= 1024) setMobileOpen(false); };
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
   }, []);
 
-  // ── Lock body scroll when mobile menu open ───
+  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
-  const handleNavClick = (href: string) => {
+  const handleNav = (href: string) => {
     setActiveHash(href);
     setMobileOpen(false);
   };
 
+  // Separate contact from the rest
+  const navLinks    = NAV_LINKS.filter((l) => l.href !== "#contact");
+  const contactLink = NAV_LINKS.find((l) => l.href === "#contact");
+
   return (
     <>
-      {/* ── Main header bar ──────────────────────── */}
+      {/* ━━━ MAIN HEADER BAR ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <header
-        className={[
-          "fixed top-0 left-0 right-0 z-50",
-          "transition-all duration-300 ease-in-out",
-          scrolled
-            ? "bg-[var(--black)]/95 backdrop-blur-sm border-b border-[var(--charcoal)]"
-            : "bg-transparent",
-        ].join(" ")}
+        style={{
+          position:   "fixed",
+          top:        0,
+          left:       0,
+          right:      0,
+          zIndex:     50,
+          transition: "background 0.3s ease, border-color 0.3s ease",
+          background: scrolled ? "rgba(4,3,4,0.96)" : "transparent",
+          backdropFilter: scrolled ? "blur(8px)" : "none",
+          borderBottom: scrolled ? "1px solid rgba(44,44,44,0.8)" : "1px solid transparent",
+        }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+        <div
+          style={{
+            maxWidth: "1280px",
+            margin:   "0 auto",
+            padding:  "0 2rem",
+          }}
+        >
+          {/*
+            THREE-COLUMN layout:
+            [Logo]   [Nav links — centered]   [Theme toggle + Contact btn]
 
-            {/* ── Logo ─────────────────────────────── */}
-            <Link
-              href="#home"
-              onClick={() => handleNavClick("#home")}
-              className="flex-shrink-0 transition-opacity duration-200 hover:opacity-80"
-              aria-label="Fitness Sports Center — go to top"
-            >
-              <span className="font-primary font-bold text-2xl tracking-tighter text-white">
-                FITNESS<span className="text-[#D5A310]">GYM</span>
-              </span>
-            </Link>
+            Each column is `flex: 1` so the nav is always perfectly centred
+            regardless of logo or button width.
+          */}
+          <div
+            style={{
+              display:        "flex",
+              alignItems:     "center",
+              justifyContent: "space-between",
+              height:         "5rem",          // 80px header height
+            }}
+          >
 
-            {/* ── Desktop nav ──────────────────────── */}
+            {/* ── COL 1: Logo (left) ─────────────────── */}
+            <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+              <a
+                href="#home"
+                onClick={() => handleNav("#home")}
+                aria-label="Fitness Gym — go to top"
+                style={{ display: "inline-block", lineHeight: 0, opacity: 1, transition: "opacity 0.2s" }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+              >
+                <Image
+                  src="/logo.png"
+                  alt="Fitness Gym Logo"
+                  width={200}
+                  height={70}
+                  priority
+                  style={{ height: "64px", width: "auto", objectFit: "contain" }}
+                />
+              </a>
+            </div>
+
+            {/* ── COL 2: Desktop nav (center) ──────────── */}
             <nav
-              className="hidden lg:flex items-center gap-8"
               aria-label="Main navigation"
+              className="hidden lg:flex"
+              style={{
+                flex:           1,
+                justifyContent: "center",    // ← perfectly centred
+                alignItems:     "center",
+                gap:            "2.5rem",    // matches Figma spacing
+              }}
             >
-              {NAV_LINKS.map((link) => {
+              {navLinks.map((link) => {
                 const isActive = activeHash === link.href;
-                const isContact = link.href === "#contact";
-
-                if (isContact) {
-                  return (
-                    <Button
-                      key={link.href}
-                      href={link.href}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleNavClick(link.href)}
-                      // Override: Contact Us uses gold border in header (matches Figma)
-                      className="!border-[#D5A310] !text-[#D5A310] hover:!bg-[#D5A310] hover:!text-[#040304] !rounded-full !px-6"
-                    >
-                      {link.label}
-                    </Button>
-                  );
-                }
-
                 return (
                   <a
                     key={link.href}
                     href={link.href}
-                    onClick={() => handleNavClick(link.href)}
-                    className={[
-                      "font-primary font-medium uppercase tracking-widest text-sm",
-                      "transition-colors duration-200",
-                      "relative group",
-                      isActive
-                        ? "text-[#D5A310]"
-                        : "text-[#F1F0EB] hover:text-[#D5A310]",
-                    ].join(" ")}
+                    onClick={() => handleNav(link.href)}
+                    style={{
+                      fontFamily:    "var(--font-primary)",
+                      fontSize:      "var(--text-sm)",
+                      fontWeight:    "var(--weight-medium)",
+                      textTransform: "uppercase",
+                      letterSpacing: "var(--tracking-wider)",
+                      color:         isActive ? "var(--gold)" : "var(--cream)",
+                      textDecoration: "none",
+                      position:      "relative",
+                      transition:    "color 0.2s",
+                      paddingBottom: "2px",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive)
+                        (e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive)
+                        (e.currentTarget as HTMLAnchorElement).style.color = "var(--cream)";
+                    }}
                   >
                     {link.label}
-                    {/* Active underline */}
+                    {/* Gold underline — visible when active */}
                     <span
-                      className={[
-                        "absolute -bottom-1 left-0 h-[2px] bg-[#D5A310]",
-                        "transition-all duration-200",
-                        isActive ? "w-full" : "w-0 group-hover:w-full",
-                      ].join(" ")}
+                      style={{
+                        position:        "absolute",
+                        bottom:          "-4px",
+                        left:            0,
+                        height:          "2px",
+                        width:           isActive ? "100%" : "0%",
+                        backgroundColor: "var(--gold)",
+                        transition:      "width 0.2s ease",
+                      }}
                     />
                   </a>
                 );
               })}
             </nav>
 
-            {/* ── Right side: theme toggle + mobile hamburger ── */}
-            <div className="flex items-center gap-3">
-              {/* Theme toggle */}
+            {/* ── COL 3: Theme toggle + Contact btn (right) ── */}
+            <div
+              style={{
+                flex:           1,
+                display:        "flex",
+                alignItems:     "center",
+                justifyContent: "flex-end",   // ← pushes to right edge
+                gap:            "1rem",
+              }}
+            >
+              {/* Theme toggle — only on desktop */}
               {mounted && (
                 <button
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-                  className={[
-                    "p-2 rounded-full transition-colors duration-200",
-                    "text-[#F1F0EB] hover:text-[#D5A310] hover:bg-[#2C2C2C]",
-                  ].join(" ")}
+                  className="hidden lg:flex"
+                  style={{
+                    alignItems:      "center",
+                    justifyContent:  "center",
+                    padding:         "0.4rem",
+                    borderRadius:    "50%",
+                    background:      "transparent",
+                    border:          "none",
+                    color:           "var(--cream)",
+                    cursor:          "pointer",
+                    transition:      "color 0.2s",
+                  }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.color = "var(--gold)")
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.color = "var(--cream)")
+                  }
                 >
-                  {theme === "dark" ? (
-                    <SunIcon className="w-5 h-5" />
-                  ) : (
-                    <MoonIcon className="w-5 h-5" />
-                  )}
+                  {theme === "dark"
+                    ? <SunIcon  style={{ width: "1.25rem", height: "1.25rem" }} />
+                    : <MoonIcon style={{ width: "1.25rem", height: "1.25rem" }} />
+                  }
                 </button>
               )}
 
-              {/* Mobile hamburger — visible only on < lg */}
+              {/* CONTACT US button — gold pill outline (desktop) */}
+              {contactLink && (
+                <a
+                  href={contactLink.href}
+                  onClick={() => handleNav(contactLink.href)}
+                  className="hidden lg:inline-flex"
+                  style={{
+                    fontFamily:    "var(--font-primary)",
+                    fontSize:      "var(--text-sm)",
+                    fontWeight:    "var(--weight-semibold)",
+                    textTransform: "uppercase",
+                    letterSpacing: "var(--tracking-wider)",
+                    color:         "var(--gold)",
+                    border:        "1.5px solid var(--gold)",
+                    borderRadius:  "9999px",       // pill
+                    padding:       "0.45rem 1.4rem",
+                    textDecoration:"none",
+                    alignItems:    "center",
+                    transition:    "background 0.2s, color 0.2s",
+                    whiteSpace:    "nowrap",
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLAnchorElement;
+                    el.style.background = "var(--gold)";
+                    el.style.color      = "var(--black)";
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLAnchorElement;
+                    el.style.background = "transparent";
+                    el.style.color      = "var(--gold)";
+                  }}
+                >
+                  {contactLink.label}
+                </a>
+              )}
+
+              {/* Mobile hamburger */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileOpen}
-                className={[
-                  "lg:hidden p-2 rounded transition-colors duration-200",
-                  "text-[#F1F0EB] hover:text-[#D5A310]",
-                ].join(" ")}
+                className="lg:hidden"
+                style={{
+                  padding:    "0.4rem",
+                  background: "transparent",
+                  border:     "none",
+                  color:      "var(--cream)",
+                  cursor:     "pointer",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLButtonElement).style.color = "var(--gold)")
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLButtonElement).style.color = "var(--cream)")
+                }
               >
-                {mobileOpen ? (
-                  <XMarkIcon className="w-6 h-6" />
-                ) : (
-                  <Bars3Icon className="w-6 h-6" />
-                )}
+                {mobileOpen
+                  ? <XMarkIcon  style={{ width: "1.5rem", height: "1.5rem" }} />
+                  : <Bars3Icon  style={{ width: "1.5rem", height: "1.5rem" }} />
+                }
               </button>
             </div>
 
@@ -193,36 +288,52 @@ export default function Header() {
         </div>
       </header>
 
-      {/* ── Mobile full-screen menu ───────────────── */}
+      {/* ━━━ MOBILE FULL-SCREEN MENU ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <div
-        className={[
-          "fixed inset-0 z-40 lg:hidden",
-          "bg-[#040304]/98 backdrop-blur-md",
-          "flex flex-col items-center justify-center gap-8",
-          "transition-all duration-300 ease-in-out",
-          mobileOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none",
-        ].join(" ")}
         aria-hidden={!mobileOpen}
+        style={{
+          position:       "fixed",
+          inset:          0,
+          zIndex:         40,
+          display:        "flex",
+          flexDirection:  "column",
+          alignItems:     "center",
+          justifyContent: "center",
+          gap:            "2rem",
+          background:     "rgba(4,3,4,0.98)",
+          backdropFilter: "blur(12px)",
+          transition:     "opacity 0.3s ease, pointer-events 0.3s",
+          opacity:        mobileOpen ? 1 : 0,
+          pointerEvents:  mobileOpen ? "auto" : "none",
+        }}
+        className="lg:hidden"
       >
-        {NAV_LINKS.map((link, i) => {
-          const isActive = activeHash === link.href;
+        {NAV_LINKS.map((link) => {
+          const isActive  = activeHash === link.href;
           const isContact = link.href === "#contact";
 
           if (isContact) {
             return (
-              <Button
+              <a
                 key={link.href}
                 href={link.href}
-                variant="outline"
-                size="md"
-                onClick={() => handleNavClick(link.href)}
-                className="!border-[#D5A310] !text-[#D5A310] !rounded-full !px-10"
-                style={{ animationDelay: `${i * 60}ms` }}
+                onClick={() => handleNav(link.href)}
+                style={{
+                  fontFamily:    "var(--font-primary)",
+                  fontSize:      "var(--text-base)",
+                  fontWeight:    "var(--weight-bold)",
+                  textTransform: "uppercase",
+                  letterSpacing: "var(--tracking-widest)",
+                  color:         "var(--gold)",
+                  border:        "1.5px solid var(--gold)",
+                  borderRadius:  "9999px",
+                  padding:       "0.6rem 2.5rem",
+                  textDecoration:"none",
+                  marginTop:     "0.5rem",
+                }}
               >
                 {link.label}
-              </Button>
+              </a>
             );
           }
 
@@ -230,20 +341,71 @@ export default function Header() {
             <a
               key={link.href}
               href={link.href}
-              onClick={() => handleNavClick(link.href)}
-              className={[
-                "font-primary font-bold uppercase tracking-widest text-2xl",
-                "transition-colors duration-200",
-                isActive ? "text-[#D5A310]" : "text-[#F1F0EB] hover:text-[#D5A310]",
-              ].join(" ")}
+              onClick={() => handleNav(link.href)}
+              style={{
+                fontFamily:    "var(--font-primary)",
+                fontSize:      "1.5rem",
+                fontWeight:    "var(--weight-bold)",
+                textTransform: "uppercase",
+                letterSpacing: "var(--tracking-widest)",
+                color:         isActive ? "var(--gold)" : "var(--cream)",
+                textDecoration:"none",
+                transition:    "color 0.2s",
+              }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLAnchorElement).style.color =
+                  isActive ? "var(--gold)" : "var(--cream)")
+              }
             >
               {link.label}
             </a>
           );
         })}
 
+        {/* Theme toggle inside mobile menu */}
+        {mounted && (
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
+            style={{
+              marginTop:   "1rem",
+              padding:     "0.5rem 1.5rem",
+              background:  "transparent",
+              border:      "1px solid rgba(241,240,235,0.2)",
+              borderRadius:"9999px",
+              color:       "var(--cream)",
+              cursor:      "pointer",
+              display:     "flex",
+              alignItems:  "center",
+              gap:         "0.5rem",
+              fontFamily:  "var(--font-primary)",
+              fontSize:    "var(--text-xs)",
+              textTransform:"uppercase",
+              letterSpacing:"var(--tracking-wider)",
+            }}
+          >
+            {theme === "dark"
+              ? <><SunIcon  style={{ width: "1rem", height: "1rem" }} /> Light Mode</>
+              : <><MoonIcon style={{ width: "1rem", height: "1rem" }} /> Dark Mode</>
+            }
+          </button>
+        )}
+
         {/* Decorative gold line */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-16 h-[2px] bg-[#D5A310]" />
+        <div
+          style={{
+            position:        "absolute",
+            bottom:          "3rem",
+            left:            "50%",
+            transform:       "translateX(-50%)",
+            width:           "4rem",
+            height:          "2px",
+            backgroundColor: "var(--gold)",
+          }}
+        />
       </div>
     </>
   );

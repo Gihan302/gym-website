@@ -4,16 +4,15 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 // ─────────────────────────────────────────────────────────────
-// Scroll-triggered fade-up hook
+// Scroll-triggered fade hook
 // ─────────────────────────────────────────────────────────────
-function useInView(threshold = 0.15) {
+function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -23,7 +22,6 @@ function useInView(threshold = 0.15) {
       },
       { threshold }
     );
-
     observer.observe(el);
     return () => observer.disconnect();
   }, [threshold]);
@@ -32,6 +30,14 @@ function useInView(threshold = 0.15) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// AboutSection
+//
+// Dark mode  → bg: #2C2C2C (charcoal), text: #F1F0EB (cream)
+// Light mode → bg: #F1F0EB (cream),    text: #040304 (black)
+//
+// Both modes: gold image offset block, gold label, gold accent
+// words in headline. Matches screenshot exactly.
+// ─────────────────────────────────────────────────────────────
 export default function AboutSection({ id }: { id: string }) {
   const { ref: leftRef,  inView: leftIn  } = useInView(0.1);
   const { ref: rightRef, inView: rightIn } = useInView(0.1);
@@ -39,127 +45,169 @@ export default function AboutSection({ id }: { id: string }) {
   return (
     <section
       id={id}
-      className="relative overflow-hidden"
       style={{
-        backgroundColor: "var(--charcoal)",   // #2C2C2C dark bg
-        paddingBlock: "var(--section-padding)",
+        // Uses CSS variable so it responds to dark/light toggle
+        backgroundColor: "var(--bg-page)",
+        paddingBlock:    "var(--section-padding)",
+        overflow:        "hidden",
+        position:        "relative",
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div
+        style={{
+          maxWidth: "1280px",
+          margin:   "0 auto",
+          padding:  "0 2rem",
+        }}
+      >
+        <div
+          style={{
+            display:             "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap:                 "5rem",
+            alignItems:          "center",
+          }}
+          className="max-lg:grid-cols-1 max-lg:gap-12"
+        >
 
-          {/* ── LEFT: Image with gold offset block ──── */}
+          {/* ━━━ LEFT: Image with gold rectangle offset ━━━ */}
           <div
             ref={leftRef}
-            className="relative"
             style={{
-              opacity: leftIn ? 1 : 0,
-              transform: leftIn ? "translateX(0)" : "translateX(-40px)",
+              position:   "relative",
+              // Extra padding bottom-right so gold block is visible
+              paddingBottom: "1.5rem",
+              paddingRight:  "1.5rem",
+              opacity:    leftIn ? 1 : 0,
+              transform:  leftIn ? "translateX(0)" : "translateX(-40px)",
               transition: "opacity 0.7s ease, transform 0.7s ease",
             }}
           >
-            {/* Gold decorative rectangle — behind and offset top-left */}
+            {/* Gold solid block — behind image, offset bottom-right */}
+            {/*
+              Matches screenshot: gold rectangle peeks out from
+              behind image at bottom-right corner.
+              In the Figma it's a solid gold fill (not outline).
+            */}
             <div
-              className="absolute"
               style={{
-                top: "-1.5rem",
-                left: "-1.5rem",
-                width: "75%",
-                height: "75%",
-                backgroundColor: "var(--gold)",
-                zIndex: 0,
+                position:        "absolute",
+                bottom:          0,
+                right:           0,
+                // Size slightly smaller than image so it peeks correctly
+                width:           "85%",
+                height:          "85%",
+                backgroundColor: "#D5A310",
+                zIndex:          0,
               }}
             />
 
-            {/* Main gym image — overlaps the gold block */}
-            <div
-              className="relative z-10"
-              style={{
-                // Offset right and down to expose gold block top-left
-                marginLeft: "1.5rem",
-                marginTop: "1.5rem",
-              }}
-            >
+            {/* Main gym image — sits above gold block */}
+            <div style={{ position: "relative", zIndex: 1 }}>
               <Image
                 src="/About us image.jpg"
                 alt="Training and fitness motivation at our gym"
                 width={600}
-                height={500}
-                className="w-full h-auto object-cover"
-                style={{ display: "block" }}
+                height={520}
+                style={{
+                  width:      "100%",
+                  height:     "auto",
+                  objectFit:  "cover",
+                  display:    "block",
+                }}
               />
             </div>
           </div>
 
-          {/* ── RIGHT: Text content ───────────────── */}
+          {/* ━━━ RIGHT: Text content ━━━━━━━━━━━━━━━━━━━━━━━ */}
           <div
             ref={rightRef}
             style={{
-              opacity: rightIn ? 1 : 0,
-              transform: rightIn ? "translateX(0)" : "translateX(40px)",
+              opacity:    rightIn ? 1 : 0,
+              transform:  rightIn ? "translateX(0)" : "translateX(40px)",
               transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s",
             }}
           >
 
-            {/* Section label: gold rule + "ABOUT US" */}
-            <div className="flex items-center gap-4 mb-4">
+            {/* Section label row: gold line + "ABOUT US" */}
+            <div
+              style={{
+                display:    "flex",
+                alignItems: "center",
+                gap:        "1rem",
+                marginBottom: "1.25rem",
+              }}
+            >
               <div
                 style={{
-                  width: "2.5rem",
-                  height: "3px",
-                  backgroundColor: "var(--gold)",
-                  flexShrink: 0,
+                  width:           "2.5rem",
+                  height:          "2px",
+                  backgroundColor: "#D5A310",
+                  flexShrink:      0,
                 }}
               />
               <span
-                className="uppercase"
                 style={{
-                  fontFamily: "var(--font-primary)",
-                  fontSize: "var(--text-label)",
-                  fontWeight: "var(--weight-semibold)",
+                  fontFamily:    "var(--font-primary)",
+                  fontSize:      "var(--text-label)",
+                  fontWeight:    "var(--weight-semibold)",
+                  textTransform: "uppercase",
                   letterSpacing: "var(--tracking-widest)",
-                  color: "var(--cream)",
+                  // Uses token so it adapts: gold in dark, gold in light (accent always gold)
+                  color:         "var(--text-accent)",
                 }}
               >
                 About Us
               </span>
             </div>
 
-            {/* Main heading — white + gold accent word */}
+            {/* Main heading */}
+            {/*
+              Dark mode:  "WE PROVIDE TRAINING AND BEST" in cream,
+                          "FITNESS MOTIVATIONS" in gold
+              Light mode: "WE PROVIDE TRAINING AND BEST" in near-black,
+                          "FITNESS MOTIVATIONS" in gold
+              → var(--text-primary) handles both automatically
+            */}
             <h2
-              className="uppercase mb-6"
               style={{
-                fontFamily: "var(--font-primary)",
-                fontSize: "var(--text-h2)",
-                fontWeight: "var(--weight-bold)",
-                lineHeight: "var(--leading-tight)",
-                color: "var(--cream)",
+                fontFamily:    "var(--font-primary)",
+                fontSize:      "var(--text-h2)",
+                fontWeight:    "var(--weight-bold)",
+                lineHeight:    "var(--leading-tight)",
+                textTransform: "uppercase",
+                color:         "var(--text-primary)",   // cream in dark / black in light
+                marginBottom:  "1.5rem",
               }}
             >
               We Provide Training And Best{" "}
-              <span style={{ color: "var(--gold)" }}>
+              <span style={{ color: "#D5A310" }}>
                 Fitness Motivations
               </span>
             </h2>
 
-            {/* Divider line */}
+            {/* Thin divider line — subtle in both modes */}
             <div
-              className="mb-6"
               style={{
-                width: "100%",
-                height: "1px",
-                backgroundColor: "rgba(241,240,235,0.08)",
+                width:           "100%",
+                height:          "1px",
+                backgroundColor: "var(--border-subtle)",
+                marginBottom:    "1.5rem",
               }}
             />
 
             {/* Body text */}
             <p
               style={{
-                fontFamily: "var(--font-primary)",
-                fontSize: "var(--text-sm)",
-                fontWeight: "var(--weight-regular)",
-                lineHeight: "var(--leading-normal)",
-                color: "rgba(241,240,235,0.65)",
+                fontFamily:  "var(--font-primary)",
+                fontSize:    "var(--text-sm)",
+                fontWeight:  "var(--weight-regular)",
+                lineHeight:  "var(--leading-normal)",
+                // text-muted token:
+                // dark mode  → rgba(241,240,235,0.55)
+                // light mode → var(--charcoal) = #2C2C2C
+                color:       "var(--text-muted)",
+                marginBottom:"0",
               }}
             >
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -167,42 +215,6 @@ export default function AboutSection({ id }: { id: string }) {
               enim ad minim veniam, quis nostrud exercitation ullamco laboris
               nisi ut aliquip ex ea commodo consequat.
             </p>
-
-            {/* Optional stats row — visually matches gym design language */}
-            <div className="flex gap-10 mt-10">
-              {[
-                { value: "500+", label: "Members" },
-                { value: "20+",  label: "Trainers" },
-                { value: "15+",  label: "Programs" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <p
-                    className="uppercase"
-                    style={{
-                      fontFamily: "var(--font-primary)",
-                      fontSize: "var(--text-h3)",
-                      fontWeight: "var(--weight-bold)",
-                      color: "var(--gold)",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {stat.value}
-                  </p>
-                  <p
-                    className="uppercase mt-1"
-                    style={{
-                      fontFamily: "var(--font-primary)",
-                      fontSize: "var(--text-xs)",
-                      fontWeight: "var(--weight-medium)",
-                      letterSpacing: "var(--tracking-wider)",
-                      color: "rgba(241,240,235,0.45)",
-                    }}
-                  >
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
 
           </div>
         </div>

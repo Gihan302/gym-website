@@ -1,44 +1,40 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
 import { NAV_LINKS } from "../../lib/constants";
 
-// ─────────────────────────────────────────────
-// Social icon SVG paths (no external icon dep)
-// ─────────────────────────────────────────────
+// ─── Social icons ────────────────────────────────────────────
 const SocialIcons = {
   facebook: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: "1rem", height: "1rem" }} aria-hidden="true">
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
     </svg>
   ),
   instagram: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden="true">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} style={{ width: "1rem", height: "1rem" }} aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" />
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
     </svg>
   ),
   twitter: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: "1rem", height: "1rem" }} aria-hidden="true">
       <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
     </svg>
   ),
   email: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} style={{ width: "1rem", height: "1rem" }} aria-hidden="true">
       <rect x="2" y="4" width="20" height="16" rx="2" />
       <polyline points="2,4 12,13 22,4" />
     </svg>
   ),
 };
 
-// ─────────────────────────────────────────────
-// Static data — move to lib/constants.ts later
-// ─────────────────────────────────────────────
 const SOCIAL_LINKS = [
-  { label: "Facebook",  href: "https://facebook.com",  icon: SocialIcons.facebook  },
-  { label: "Instagram", href: "https://instagram.com", icon: SocialIcons.instagram },
-  { label: "Twitter",   href: "https://twitter.com",   icon: SocialIcons.twitter   },
-  { label: "Email",     href: "mailto:info@fitness.com", icon: SocialIcons.email   },
+  { label: "Facebook",  href: "https://facebook.com",    icon: SocialIcons.facebook  },
+  { label: "Instagram", href: "https://instagram.com",   icon: SocialIcons.instagram },
+  { label: "Twitter",   href: "https://twitter.com",     icon: SocialIcons.twitter   },
+  { label: "Email",     href: "mailto:info@fitness.com", icon: SocialIcons.email     },
 ];
 
 const CONTACT_INFO = {
@@ -47,144 +43,227 @@ const CONTACT_INFO = {
   location: "Pita Kotte, Sri Lanka",
 };
 
-// ─────────────────────────────────────────────
-// Sub-components
-// ─────────────────────────────────────────────
-function FooterHeading({ children }: { children: React.ReactNode }) {
+// ─── Reusable sub-components ─────────────────────────────────
+function ColHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="font-primary font-semibold uppercase tracking-widest text-sm text-[var(--cream)] mb-5">
+    <p
+      style={{
+        fontFamily:    "var(--font-primary)",
+        fontSize:      "var(--text-sm)",
+        fontWeight:    "var(--weight-semibold)",
+        textTransform: "uppercase",
+        letterSpacing: "var(--tracking-wider)",
+        color:         "var(--cream)",
+        marginBottom:  "1.25rem",
+      }}
+    >
       {children}
-    </h3>
+    </p>
   );
 }
 
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
-  const isExternal = href.startsWith("http") || href.startsWith("mailto");
-  const baseClass =
-    "font-primary font-medium uppercase tracking-wider text-sm text-[var(--cream)]/70 hover:text-[var(--gold)] transition-colors duration-200 block leading-relaxed";
-
-  if (isExternal) {
-    return (
-      <a href={href} className={baseClass} target="_blank" rel="noopener noreferrer">
-        {children}
-      </a>
-    );
-  }
-
+function FooterNavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <a href={href} className={baseClass}>
+    <a
+      href={href}
+      style={{
+        display:       "block",
+        fontFamily:    "var(--font-primary)",
+        fontSize:      "var(--text-sm)",
+        fontWeight:    "var(--weight-medium)",
+        textTransform: "uppercase",
+        letterSpacing: "var(--tracking-wide)",
+        color:         "rgba(241,240,235,0.65)",
+        textDecoration:"none",
+        lineHeight:    "2",
+        transition:    "color 0.2s",
+      }}
+      onMouseEnter={(e) =>
+        ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
+      }
+      onMouseLeave={(e) =>
+        ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.65)")
+      }
+    >
       {children}
     </a>
   );
 }
 
-// ─────────────────────────────────────────────
-// Footer
-// ─────────────────────────────────────────────
+function InfoLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      style={{
+        fontFamily:    "var(--font-primary)",
+        fontSize:      "var(--text-xs)",
+        fontWeight:    "var(--weight-semibold)",
+        textTransform: "uppercase",
+        letterSpacing: "var(--tracking-wider)",
+        color:         "rgba(241,240,235,0.35)",
+        marginBottom:  "0.2rem",
+      }}
+    >
+      {children}
+    </p>
+  );
+}
+
+function InfoValue({
+  href,
+  children,
+}: {
+  href?: string;
+  children: React.ReactNode;
+}) {
+  const style: React.CSSProperties = {
+    fontFamily:    "var(--font-primary)",
+    fontSize:      "var(--text-sm)",
+    color:         "rgba(241,240,235,0.65)",
+    textDecoration:"none",
+    transition:    "color 0.2s",
+    display:       "block",
+    marginBottom:  "1rem",
+  };
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        style={style}
+        onMouseEnter={(e) =>
+          ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
+        }
+        onMouseLeave={(e) =>
+          ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.65)")
+        }
+      >
+        {children}
+      </a>
+    );
+  }
+  return <p style={{ ...style }}>{children}</p>;
+}
+
+// ─────────────────────────────────────────────────────────────
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[var(--black)] border-t border-[var(--charcoal)]">
+    <footer style={{ backgroundColor: "var(--black)" }}>
 
-      {/* ── Top gold accent line ─────────────────── */}
-      <div className="h-[3px] bg-[var(--gold)] w-full" />
+      {/* Gold top accent line */}
+      <div style={{ height: "3px", backgroundColor: "var(--gold)", width: "100%" }} />
 
-      {/* ── Main footer content ──────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      {/* Main grid */}
+      <div
+        style={{
+          maxWidth: "1280px",
+          margin:   "0 auto",
+          padding:  "4rem 2rem",
+        }}
+      >
+        {/*
+          4-column layout matching Figma:
+          [Logo]  [Quick Links]  [Information]  [Social Media]
 
-          {/* ── Column 1: Logo + tagline ───────────── */}
-          <div className="flex flex-col gap-6">
-            <a href="#home" aria-label="Fitness Sports Center — go to top">
-              <span className="font-primary font-bold text-2xl tracking-tighter text-white uppercase">
-                FITNESS<span className="text-[#D5A310]">GYM</span>
-              </span>
+          On mobile: 1 column stacked.
+          Logo column is slightly wider to balance the layout.
+        */}
+        <div
+          style={{
+            display:             "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap:                 "3rem",
+          }}
+          className="max-md:grid-cols-2 max-sm:grid-cols-1"
+        >
+
+          {/* ── Col 1: Logo ─────────────────────── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <a href="#home" aria-label="Go to top" style={{ display: "inline-block", lineHeight: 0 }}>
+              <Image
+                src="/logo.png"
+                alt="Fitness Gym Logo"
+                width={200}
+                height={70}
+                style={{ height: "72px", width: "auto", objectFit: "contain" }}
+              />
             </a>
-            {/* Short tagline below logo */}
-            <p className="font-primary text-sm text-[var(--cream)]/50 leading-relaxed max-w-[180px]">
-              Train hard. Live strong. Established 2022.
-            </p>
-            {/* Decorative gold rule */}
-            <div className="w-10 h-[2px] bg-[var(--gold)]" />
+            {/* Decorative gold rule below logo */}
+            <div style={{ width: "2.5rem", height: "2px", backgroundColor: "var(--gold)" }} />
           </div>
 
-          {/* ── Column 2: Quick links ─────────────── */}
+          {/* ── Col 2: Quick Links ───────────────── */}
           <div>
-            <FooterHeading>Quick Links</FooterHeading>
-            <nav aria-label="Footer navigation" className="flex flex-col gap-1">
+            <ColHeading>Quick Links</ColHeading>
+            <nav aria-label="Footer navigation">
               {NAV_LINKS.map((link) => (
-                <FooterLink key={link.href} href={link.href}>
+                <FooterNavLink key={link.href} href={link.href}>
                   {link.label}
-                </FooterLink>
+                </FooterNavLink>
               ))}
             </nav>
           </div>
 
-          {/* ── Column 3: Contact information ─────── */}
+          {/* ── Col 3: Information ───────────────── */}
           <div>
-            <FooterHeading>Information</FooterHeading>
-            <div className="flex flex-col gap-4">
+            <ColHeading>Information</ColHeading>
 
-              {/* Email */}
-              <div>
-                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[var(--cream)]/40 mb-1">
-                  E mail
-                </p>
-                <a
-                  href={`mailto:${CONTACT_INFO.email}`}
-                  className="font-primary text-sm text-[var(--cream)]/70 hover:text-[var(--gold)] transition-colors duration-200"
-                >
-                  {CONTACT_INFO.email}
-                </a>
-              </div>
+            <InfoLabel>E mail</InfoLabel>
+            <InfoValue href={`mailto:${CONTACT_INFO.email}`}>
+              {CONTACT_INFO.email}
+            </InfoValue>
 
-              {/* Phone */}
-              <div>
-                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[var(--cream)]/40 mb-1">
-                  Phone
-                </p>
-                <a
-                  href={`tel:${CONTACT_INFO.phone.replace(/\s/g, "")}`}
-                  className="font-primary text-sm text-[var(--cream)]/70 hover:text-[var(--gold)] transition-colors duration-200"
-                >
-                  {CONTACT_INFO.phone}
-                </a>
-              </div>
+            <InfoLabel>Phone</InfoLabel>
+            <InfoValue href={`tel:${CONTACT_INFO.phone.replace(/\s/g, "")}`}>
+              {CONTACT_INFO.phone}
+            </InfoValue>
 
-              {/* Location */}
-              <div>
-                <p className="font-primary font-semibold text-xs uppercase tracking-widest text-[var(--cream)]/40 mb-1">
-                  Location
-                </p>
-                <p className="font-primary text-sm text-[var(--cream)]/70">
-                  {CONTACT_INFO.location}
-                </p>
-              </div>
-
-            </div>
+            <InfoLabel>Location</InfoLabel>
+            <InfoValue>{CONTACT_INFO.location}</InfoValue>
           </div>
 
-          {/* ── Column 4: Social media ────────────── */}
+          {/* ── Col 4: Social Media ──────────────── */}
           <div>
-            <FooterHeading>Social Media</FooterHeading>
-            <div className="flex flex-col gap-3">
-              {SOCIAL_LINKS.map((social) => (
+            <ColHeading>Social Media</ColHeading>
+            {/*
+              Figma shows icons stacked VERTICALLY, one per row.
+              Each is a small square icon box.
+            */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              {SOCIAL_LINKS.map((s) => (
                 <a
-                  key={social.label}
-                  href={social.href}
+                  key={s.label}
+                  href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className={[
-                    "w-9 h-9 flex items-center justify-center",
-                    "border border-[var(--charcoal)] rounded",
-                    "text-[var(--cream)]/60",
-                    "hover:border-[var(--gold)] hover:text-[var(--gold)] hover:bg-[var(--gold)]/10",
-                    "transition-all duration-200",
-                  ].join(" ")}
+                  aria-label={s.label}
+                  style={{
+                    display:         "inline-flex",
+                    alignItems:      "center",
+                    justifyContent:  "center",
+                    width:           "2.25rem",
+                    height:          "2.25rem",
+                    border:          "1px solid rgba(44,44,44,0.9)",
+                    borderRadius:    "4px",
+                    color:           "rgba(241,240,235,0.6)",
+                    textDecoration:  "none",
+                    transition:      "border-color 0.2s, color 0.2s, background 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLAnchorElement;
+                    el.style.borderColor = "var(--gold)";
+                    el.style.color       = "var(--gold)";
+                    el.style.background  = "rgba(213,163,16,0.08)";
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLAnchorElement;
+                    el.style.borderColor = "rgba(44,44,44,0.9)";
+                    el.style.color       = "rgba(241,240,235,0.6)";
+                    el.style.background  = "transparent";
+                  }}
                 >
-                  {social.icon}
+                  {s.icon}
                 </a>
               ))}
             </div>
@@ -193,15 +272,52 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ── Bottom copyright bar ─────────────────── */}
-      <div className="border-t border-[var(--charcoal)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-primary text-xs text-[var(--cream)]/35 uppercase tracking-wider">
+      {/* Bottom copyright bar */}
+      <div
+        style={{
+          borderTop: "1px solid rgba(44,44,44,0.8)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth:       "1280px",
+            margin:         "0 auto",
+            padding:        "1.25rem 2rem",
+            display:        "flex",
+            alignItems:     "center",
+            justifyContent: "space-between",
+            flexWrap:       "wrap",
+            gap:            "0.75rem",
+          }}
+        >
+          <p
+            style={{
+              fontFamily:    "var(--font-primary)",
+              fontSize:      "var(--text-xs)",
+              textTransform: "uppercase",
+              letterSpacing: "var(--tracking-wide)",
+              color:         "rgba(241,240,235,0.3)",
+            }}
+          >
             © {year} Fitness Sports Center. All rights reserved.
           </p>
           <a
             href="#"
-            className="font-primary text-xs text-[var(--cream)]/35 hover:text-[var(--gold)] uppercase tracking-wider transition-colors duration-200"
+            style={{
+              fontFamily:    "var(--font-primary)",
+              fontSize:      "var(--text-xs)",
+              textTransform: "uppercase",
+              letterSpacing: "var(--tracking-wide)",
+              color:         "rgba(241,240,235,0.3)",
+              textDecoration:"none",
+              transition:    "color 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.3)")
+            }
           >
             Privacy Policy
           </a>
