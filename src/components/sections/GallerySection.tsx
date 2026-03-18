@@ -89,12 +89,10 @@ export default function GallerySection({ id }: { id: string }) {
         {/* ── Heading block ────────────────────── */}
         <div
           ref={headRef}
+          className={headIn ? "animate-fade-up" : "opacity-0"}
           style={{
             textAlign:  "center",
             marginBottom:"3rem",
-            opacity:    headIn ? 1 : 0,
-            transform:  headIn ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.6s ease, transform 0.6s ease",
           }}
         >
           {/* "Gallery" label with gold underline */}
@@ -214,14 +212,13 @@ function GalleryImage({
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className={inView ? "animate-scale-in" : "opacity-0"}
       style={{
         position:   "relative",
         overflow:   "hidden",
         aspectRatio,
         cursor:     "pointer",
-        opacity:    inView ? 1 : 0,
-        transform:  inView ? "scale(1)" : "scale(0.97)",
-        transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
+        animationDelay: `${delay}ms`,
       }}
     >
       <Image

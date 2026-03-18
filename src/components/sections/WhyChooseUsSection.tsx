@@ -118,12 +118,10 @@ export default function WhyChooseUsSection({ id }: { id: string }) {
         {/* ── Heading block ────────────────────── */}
         <div
           ref={headRef}
+          className={headIn ? "animate-fade-up" : "opacity-0"}
           style={{
             textAlign:   "center",
             marginBottom:"3.5rem",
-            opacity:     headIn ? 1 : 0,
-            transform:   headIn ? "translateY(0)" : "translateY(24px)",
-            transition:  "opacity 0.6s ease, transform 0.6s ease",
           }}
         >
           {/* "Why chose us?" label + gold underline */}
@@ -193,15 +191,14 @@ function FeatureCard({
 }) {
   return (
     <div
+      className={inView ? "animate-fade-up" : "opacity-0"}
       style={{
         display:       "flex",
         flexDirection: "column",
         alignItems:    "center",
         textAlign:     "center",
         gap:           "1rem",
-        opacity:       inView ? 1 : 0,
-        transform:     inView ? "translateY(0)" : "translateY(28px)",
-        transition:    `opacity 0.6s ease ${index * 100}ms, transform 0.6s ease ${index * 100}ms`,
+        animationDelay: `${index * 150}ms`,
       }}
     >
       {/* Circular icon container */}

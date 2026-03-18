@@ -3,28 +3,35 @@ import { Oswald } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
-// ━━━ STEP 8: app/layout.tsx ━━━
-
 const oswald = Oswald({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  subsets:  ["latin"],
+  weight:   ["400", "500", "600", "700"],
   variable: "--font-primary",
-  display: "swap",
+  display:  "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Fitness Gym | Push Your Limits",
-  description: "Elite training and world-class equipment. Join the gym that transforms lives. Premium coaching, modern facilities, and a dedicated community.",
+  title:       "Fitness Gym | Push Your Limits",
+  description: "Elite training and world-class equipment. Join the gym that transforms lives.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${oswald.variable}`}>
-      <body className="antialiased">
+    /*
+      ── KEY FIX ──────────────────────────────────────────────
+      DO NOT put className on <html>.
+      next-themes needs full control of <html> to add/remove
+      the "dark" class. If React also controls className on
+      <html>, they conflict and the .dark class never applies
+      reliably — which is why light mode was broken.
+
+      Instead: put the font variable on <body> so Oswald loads
+      correctly AND next-themes can freely manage <html>.
+      ─────────────────────────────────────────────────────── */
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${oswald.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

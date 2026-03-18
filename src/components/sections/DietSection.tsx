@@ -90,12 +90,10 @@ export default function DietSection({ id }: { id: string }) {
 
         {/* ── Section heading ───────────────────── */}
         <div
+          className={inView ? "animate-fade-up" : "opacity-0"}
           style={{
             textAlign:   "center",
             marginBottom:"4rem",
-            opacity:     inView ? 1 : 0,
-            transform:   inView ? "translateY(0)" : "translateY(24px)",
-            transition:  "opacity 0.6s ease, transform 0.6s ease",
           }}
         >
           {/* "DIET" label + gold underline */}
@@ -148,11 +146,9 @@ export default function DietSection({ id }: { id: string }) {
           {/* ━━━ LEFT COLUMN ━━━━━━━━━━━━━━━━━━━━━━━ */}
           <div
             ref={leftRef}
+            className={leftIn ? "animate-fade-left" : "opacity-0"}
             style={{
               position:   "relative",
-              opacity:    leftIn ? 1 : 0,
-              transform:  leftIn ? "translateX(0)" : "translateX(-32px)",
-              transition: "opacity 0.7s ease, transform 0.7s ease",
             }}
           >
             {/* Large "FITNESS" watermark text behind content */}
@@ -220,10 +216,9 @@ export default function DietSection({ id }: { id: string }) {
           {/* ━━━ RIGHT COLUMN — Meal plan card ━━━━━ */}
           <div
             ref={rightRef}
+            className={rightIn ? "animate-fade-right" : "opacity-0"}
             style={{
-              opacity:    rightIn ? 1 : 0,
-              transform:  rightIn ? "translateX(0)" : "translateX(32px)",
-              transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s",
+              animationDelay: "200ms",
             }}
           >
             <div
@@ -284,10 +279,9 @@ export default function DietSection({ id }: { id: string }) {
                       borderBottom:  i < MEAL_DAYS.length - 1
                         ? "1px solid rgba(241,240,235,0.08)"
                         : "none",
-                      opacity:       rightIn ? 1 : 0,
-                      transform:     rightIn ? "translateX(0)" : "translateX(16px)",
-                      transition:    `opacity 0.5s ease ${0.2 + i * 0.08}s, transform 0.5s ease ${0.2 + i * 0.08}s`,
+                      animationDelay: `${400 + i * 100}ms`,
                     }}
+                    className={rightIn ? "animate-fade-left" : "opacity-0"}
                   >
                     {/* Gold bullet dot */}
                     <div

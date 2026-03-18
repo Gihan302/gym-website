@@ -222,10 +222,9 @@ export default function ContactSection({ id }: { id: string }) {
         {/* ━━━ LEFT: Contact info ━━━━━━━━━━━━━━━━ */}
         <div
           ref={leftRef}
+          className={leftIn ? "animate-fade-left" : "opacity-0"}
           style={{
-            opacity:    leftIn ? 1 : 0,
-            transform:  leftIn ? "translateX(0)" : "translateX(-32px)",
-            transition: "opacity 0.7s ease, transform 0.7s ease",
+            display: "flex", flexDirection: "column", gap: "2rem"
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
@@ -295,10 +294,9 @@ export default function ContactSection({ id }: { id: string }) {
         {/* ━━━ RIGHT: Contact form card ━━━━━━━━━━ */}
         <div
           ref={rightRef}
+          className={rightIn ? "animate-fade-right" : "opacity-0"}
           style={{
-            opacity:    rightIn ? 1 : 0,
-            transform:  rightIn ? "translateX(0)" : "translateX(32px)",
-            transition: "opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s",
+            animationDelay: "200ms",
           }}
         >
           <div

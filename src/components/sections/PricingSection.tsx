@@ -90,11 +90,9 @@ export default function PricingSection({ id }: { id: string }) {
         {/* Heading */}
         <div
           ref={headRef}
+          className={headIn ? "animate-fade-up" : "opacity-0"}
           style={{
             textAlign: "center", marginBottom: "3.5rem",
-            opacity: headIn ? 1 : 0,
-            transform: headIn ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.6s ease, transform 0.6s ease",
           }}
         >
           <p
@@ -150,16 +148,14 @@ function PricingCard({
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className={inView ? "animate-fade-up" : "opacity-0"}
       style={{
         // Dark semi-transparent card bg — same in both modes (always on bg image)
         backgroundColor: hov ? "rgba(213,163,16,0.12)" : "rgba(4,3,4,0.72)",
         border:          `1px solid ${hov || plan.featured ? "#D5A310" : "rgba(241,240,235,0.12)"}`,
         padding:         "2.5rem 2rem",
         cursor:          "default",
-        opacity:         inView ? 1 : 0,
-        transform:       inView ? "translateY(0)" : "translateY(32px)",
-        transition:      `opacity 0.6s ease ${index * 120}ms, transform 0.6s ease ${index * 120}ms,
-                          background-color 0.3s ease, border-color 0.3s ease`,
+        animationDelay:  `${index * 150}ms`,
         backdropFilter:  "blur(4px)",
       }}
     >

@@ -7,22 +7,20 @@ import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon } from "@heroicons/react/24/out
 import { NAV_LINKS } from "../../lib/constants";
 
 export default function Header() {
-  const [scrolled, setScrolled]     = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeHash, setActiveHash] = useState("#home");
-  const [mounted, setMounted]       = useState(false);
-  const { theme, setTheme }         = useTheme();
+  const [scrolled,    setScrolled]    = useState(false);
+  const [mobileOpen,  setMobileOpen]  = useState(false);
+  const [activeHash,  setActiveHash]  = useState("#home");
+  const [mounted,     setMounted]     = useState(false);
+  const { theme, setTheme }           = useTheme();
 
   useEffect(() => setMounted(true), []);
 
-  // Solid bg after 20px scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Active section tracking
   useEffect(() => {
     const ids = NAV_LINKS.map((l) => l.href.replace("#", ""));
     const observer = new IntersectionObserver(
@@ -40,74 +38,85 @@ export default function Header() {
     return () => observer.disconnect();
   }, []);
 
-  // Close mobile on resize
   useEffect(() => {
     const fn = () => { if (window.innerWidth >= 1024) setMobileOpen(false); };
     window.addEventListener("resize", fn);
     return () => window.removeEventListener("resize", fn);
   }, []);
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
-  const handleNav = (href: string) => {
+  const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const id = href.replace("#", "");
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
     setActiveHash(href);
     setMobileOpen(false);
   };
 
-  // Separate contact from the rest
   const navLinks    = NAV_LINKS.filter((l) => l.href !== "#contact");
-  const contactLink = NAV_LINKS.find((l) => l.href === "#contact");
+  const contactLink = NAV_LINKS.find((l)   => l.href === "#contact");
+
+  // ─────────────────────────────────────────────────────────
+  // Nav text color logic:
+  //   - Hero section is ALWAYS black bg → always show cream text
+  //   - Once scrolled, header gets solid dark bg → still cream
+  //   - In light mode the page bg is cream, so un-scrolled
+  //     header (transparent) would make cream text invisible.
+  //   - Fix: when scrolled OR always-on-dark-hero → cream
+  //          when not scrolled + light mode → use dark text
+  // ─────────────────────────────────────────────────────────
+  const isDark        = mounted ? theme === "dark" : true;
+  // Header is over dark hero at the very top, so always cream there.
+  // When scrolled, adapt to theme: dark bg/cream text in dark mode, cream bg/dark text in light mode.
+  const navTextColor  = scrolled 
+    ? (isDark ? "#F1F0EB" : "#040304") 
+    : "#F1F0EB";
+  const navHoverColor = "#D5A310";
 
   return (
     <>
-      {/* ━━━ MAIN HEADER BAR ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ HEADER BAR ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <header
         style={{
-          position:   "fixed",
-          top:        0,
-          left:       0,
-          right:      0,
-          zIndex:     50,
-          transition: "background 0.3s ease, border-color 0.3s ease",
-          background: scrolled ? "rgba(4,3,4,0.96)" : "transparent",
-          backdropFilter: scrolled ? "blur(8px)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(44,44,44,0.8)" : "1px solid transparent",
+          position:      "fixed",
+          top:           0,
+          left:          0,
+          right:         0,
+          zIndex:        50,
+          transition:    "background 0.3s ease, border-color 0.3s ease",
+          background:    scrolled 
+            ? (isDark ? "rgba(4,3,4,0.96)" : "rgba(241,240,235,0.96)") 
+            : "transparent",
+          backdropFilter:scrolled ? "blur(8px)" : "none",
+          borderBottom:  scrolled
+            ? (isDark ? "1px solid rgba(44,44,44,0.8)" : "1px solid rgba(213,163,16,0.1)")
+            : "1px solid transparent",
         }}
       >
-        <div
-          style={{
-            maxWidth: "1280px",
-            margin:   "0 auto",
-            padding:  "0 2rem",
-          }}
-        >
-          {/*
-            THREE-COLUMN layout:
-            [Logo]   [Nav links — centered]   [Theme toggle + Contact btn]
-
-            Each column is `flex: 1` so the nav is always perfectly centred
-            regardless of logo or button width.
-          */}
+        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 2rem" }}>
           <div
             style={{
               display:        "flex",
               alignItems:     "center",
               justifyContent: "space-between",
-              height:         "5rem",          // 80px header height
+              height:         "5rem",
             }}
           >
 
-            {/* ── COL 1: Logo (left) ─────────────────── */}
+            {/* ── COL 1: Logo ──────────────────────── */}
             <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
               <a
                 href="#home"
-                onClick={() => handleNav("#home")}
+                onClick={(e) => handleNav(e, "#home")}
                 aria-label="Fitness Gym — go to top"
-                style={{ display: "inline-block", lineHeight: 0, opacity: 1, transition: "opacity 0.2s" }}
+                style={{ display: "inline-block", lineHeight: 0, transition: "opacity 0.2s" }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -117,20 +126,24 @@ export default function Header() {
                   width={200}
                   height={70}
                   priority
-                  style={{ height: "64px", width: "auto", objectFit: "contain" }}
+                  style={{ 
+                    height: "64px", 
+                    width: "auto", 
+                    objectFit: "contain"
+                  }}
                 />
               </a>
             </div>
 
-            {/* ── COL 2: Desktop nav (center) ──────────── */}
+            {/* ── COL 2: Desktop nav ───────────────── */}
             <nav
               aria-label="Main navigation"
               className="hidden lg:flex"
               style={{
                 flex:           1,
-                justifyContent: "center",    // ← perfectly centred
+                justifyContent: "center",
                 alignItems:     "center",
-                gap:            "2.5rem",    // matches Figma spacing
+                gap:            "2rem",
               }}
             >
               {navLinks.map((link) => {
@@ -139,30 +152,31 @@ export default function Header() {
                   <a
                     key={link.href}
                     href={link.href}
-                    onClick={() => handleNav(link.href)}
+                    onClick={(e) => handleNav(e, link.href)}
                     style={{
-                      fontFamily:    "var(--font-primary)",
-                      fontSize:      "var(--text-sm)",
-                      fontWeight:    "var(--weight-medium)",
-                      textTransform: "uppercase",
-                      letterSpacing: "var(--tracking-wider)",
-                      color:         isActive ? "var(--gold)" : "var(--cream)",
+                      fontFamily:     "var(--font-primary)",
+                      fontSize:       "var(--text-sm)",
+                      fontWeight:     "var(--weight-medium)",
+                      textTransform:  "uppercase",
+                      letterSpacing:  "0.06em",
+                      color:          isActive ? "#D5A310" : navTextColor,
                       textDecoration: "none",
-                      position:      "relative",
-                      transition:    "color 0.2s",
-                      paddingBottom: "2px",
+                      position:       "relative",
+                      transition:     "color 0.2s",
+                      whiteSpace:     "nowrap",
+                      paddingBottom:  "2px",
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive)
-                        (e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)";
+                        (e.currentTarget as HTMLAnchorElement).style.color = navHoverColor;
                     }}
                     onMouseLeave={(e) => {
                       if (!isActive)
-                        (e.currentTarget as HTMLAnchorElement).style.color = "var(--cream)";
+                        (e.currentTarget as HTMLAnchorElement).style.color = navTextColor;
                     }}
                   >
                     {link.label}
-                    {/* Gold underline — visible when active */}
+                    {/* Active gold underline */}
                     <span
                       style={{
                         position:        "absolute",
@@ -170,7 +184,7 @@ export default function Header() {
                         left:            0,
                         height:          "2px",
                         width:           isActive ? "100%" : "0%",
-                        backgroundColor: "var(--gold)",
+                        backgroundColor: "#D5A310",
                         transition:      "width 0.2s ease",
                       }}
                     />
@@ -179,38 +193,38 @@ export default function Header() {
               })}
             </nav>
 
-            {/* ── COL 3: Theme toggle + Contact btn (right) ── */}
+            {/* ── COL 3: Theme toggle + Contact ────── */}
             <div
               style={{
                 flex:           1,
                 display:        "flex",
                 alignItems:     "center",
-                justifyContent: "flex-end",   // ← pushes to right edge
+                justifyContent: "flex-end",
                 gap:            "1rem",
               }}
             >
-              {/* Theme toggle — only on desktop */}
+              {/* Theme toggle (desktop) */}
               {mounted && (
                 <button
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                   aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
                   className="hidden lg:flex"
                   style={{
-                    alignItems:      "center",
-                    justifyContent:  "center",
-                    padding:         "0.4rem",
-                    borderRadius:    "50%",
-                    background:      "transparent",
-                    border:          "none",
-                    color:           "var(--cream)",
-                    cursor:          "pointer",
-                    transition:      "color 0.2s",
+                    alignItems:     "center",
+                    justifyContent: "center",
+                    padding:        "0.4rem",
+                    borderRadius:   "50%",
+                    background:     "transparent",
+                    border:         "none",
+                    color:          navTextColor,
+                    cursor:         "pointer",
+                    transition:     "color 0.2s",
                   }}
                   onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.color = "var(--gold)")
+                    ((e.currentTarget as HTMLButtonElement).style.color = "#D5A310")
                   }
                   onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.color = "var(--cream)")
+                    ((e.currentTarget as HTMLButtonElement).style.color = navTextColor)
                   }
                 >
                   {theme === "dark"
@@ -220,36 +234,36 @@ export default function Header() {
                 </button>
               )}
 
-              {/* CONTACT US button — gold pill outline (desktop) */}
+              {/* Contact Us pill */}
               {contactLink && (
                 <a
                   href={contactLink.href}
-                  onClick={() => handleNav(contactLink.href)}
+                  onClick={(e) => handleNav(e, contactLink.href)}
                   className="hidden lg:inline-flex"
                   style={{
-                    fontFamily:    "var(--font-primary)",
-                    fontSize:      "var(--text-sm)",
-                    fontWeight:    "var(--weight-semibold)",
-                    textTransform: "uppercase",
-                    letterSpacing: "var(--tracking-wider)",
-                    color:         "var(--gold)",
-                    border:        "1.5px solid var(--gold)",
-                    borderRadius:  "9999px",       // pill
-                    padding:       "0.45rem 1.4rem",
-                    textDecoration:"none",
-                    alignItems:    "center",
-                    transition:    "background 0.2s, color 0.2s",
-                    whiteSpace:    "nowrap",
+                    fontFamily:     "var(--font-primary)",
+                    fontSize:       "var(--text-sm)",
+                    fontWeight:     "var(--weight-semibold)",
+                    textTransform:  "uppercase",
+                    letterSpacing:  "0.06em",
+                    color:          "#D5A310",
+                    border:         "1.5px solid #D5A310",
+                    borderRadius:   "9999px",
+                    padding:        "0.45rem 1.4rem",
+                    textDecoration: "none",
+                    alignItems:     "center",
+                    whiteSpace:     "nowrap",
+                    transition:     "background 0.2s, color 0.2s",
                   }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.background = "var(--gold)";
-                    el.style.color      = "var(--black)";
+                    el.style.background = "#D5A310";
+                    el.style.color      = "#040304";
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLAnchorElement;
                     el.style.background = "transparent";
-                    el.style.color      = "var(--gold)";
+                    el.style.color      = "#D5A310";
                   }}
                 >
                   {contactLink.label}
@@ -266,20 +280,20 @@ export default function Header() {
                   padding:    "0.4rem",
                   background: "transparent",
                   border:     "none",
-                  color:      "var(--cream)",
+                  color:      mobileOpen ? "#F1F0EB" : navTextColor,
                   cursor:     "pointer",
                   transition: "color 0.2s",
                 }}
                 onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.color = "var(--gold)")
+                  ((e.currentTarget as HTMLButtonElement).style.color = "#D5A310")
                 }
                 onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.color = "var(--cream)")
+                  ((e.currentTarget as HTMLButtonElement).style.color = mobileOpen ? "#F1F0EB" : navTextColor)
                 }
               >
                 {mobileOpen
-                  ? <XMarkIcon  style={{ width: "1.5rem", height: "1.5rem" }} />
-                  : <Bars3Icon  style={{ width: "1.5rem", height: "1.5rem" }} />
+                  ? <XMarkIcon style={{ width: "1.5rem", height: "1.5rem" }} />
+                  : <Bars3Icon style={{ width: "1.5rem", height: "1.5rem" }} />
                 }
               </button>
             </div>
@@ -288,9 +302,14 @@ export default function Header() {
         </div>
       </header>
 
-      {/* ━━━ MOBILE FULL-SCREEN MENU ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ MOBILE MENU ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/*
+        Mobile menu ALWAYS uses dark bg (#040304) with cream text
+        regardless of theme — it's a full-screen overlay.
+      */}
       <div
         aria-hidden={!mobileOpen}
+        className="lg:hidden"
         style={{
           position:       "fixed",
           inset:          0,
@@ -302,11 +321,10 @@ export default function Header() {
           gap:            "2rem",
           background:     "rgba(4,3,4,0.98)",
           backdropFilter: "blur(12px)",
-          transition:     "opacity 0.3s ease, pointer-events 0.3s",
+          transition:     "opacity 0.3s ease",
           opacity:        mobileOpen ? 1 : 0,
           pointerEvents:  mobileOpen ? "auto" : "none",
         }}
-        className="lg:hidden"
       >
         {NAV_LINKS.map((link) => {
           const isActive  = activeHash === link.href;
@@ -317,19 +335,19 @@ export default function Header() {
               <a
                 key={link.href}
                 href={link.href}
-                onClick={() => handleNav(link.href)}
+                onClick={(e) => handleNav(e, link.href)}
                 style={{
-                  fontFamily:    "var(--font-primary)",
-                  fontSize:      "var(--text-base)",
-                  fontWeight:    "var(--weight-bold)",
-                  textTransform: "uppercase",
-                  letterSpacing: "var(--tracking-widest)",
-                  color:         "var(--gold)",
-                  border:        "1.5px solid var(--gold)",
-                  borderRadius:  "9999px",
-                  padding:       "0.6rem 2.5rem",
-                  textDecoration:"none",
-                  marginTop:     "0.5rem",
+                  fontFamily:     "var(--font-primary)",
+                  fontSize:       "var(--text-base)",
+                  fontWeight:     "var(--weight-bold)",
+                  textTransform:  "uppercase",
+                  letterSpacing:  "var(--tracking-widest)",
+                  color:          "#D5A310",
+                  border:         "1.5px solid #D5A310",
+                  borderRadius:   "9999px",
+                  padding:        "0.6rem 2.5rem",
+                  textDecoration: "none",
+                  marginTop:      "0.5rem",
                 }}
               >
                 {link.label}
@@ -341,23 +359,23 @@ export default function Header() {
             <a
               key={link.href}
               href={link.href}
-              onClick={() => handleNav(link.href)}
+              onClick={(e) => handleNav(e, link.href)}
               style={{
-                fontFamily:    "var(--font-primary)",
-                fontSize:      "1.5rem",
-                fontWeight:    "var(--weight-bold)",
-                textTransform: "uppercase",
-                letterSpacing: "var(--tracking-widest)",
-                color:         isActive ? "var(--gold)" : "var(--cream)",
-                textDecoration:"none",
-                transition:    "color 0.2s",
+                fontFamily:     "var(--font-primary)",
+                fontSize:       "1.5rem",
+                fontWeight:     "var(--weight-bold)",
+                textTransform:  "uppercase",
+                letterSpacing:  "var(--tracking-widest)",
+                color:          isActive ? "#D5A310" : "#F1F0EB",  // always cream in dark overlay
+                textDecoration: "none",
+                transition:     "color 0.2s",
               }}
               onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
+                ((e.currentTarget as HTMLAnchorElement).style.color = "#D5A310")
               }
               onMouseLeave={(e) =>
                 ((e.currentTarget as HTMLAnchorElement).style.color =
-                  isActive ? "var(--gold)" : "var(--cream)")
+                  isActive ? "#D5A310" : "#F1F0EB")
               }
             >
               {link.label}
@@ -365,26 +383,26 @@ export default function Header() {
           );
         })}
 
-        {/* Theme toggle inside mobile menu */}
+        {/* Theme toggle in mobile menu */}
         {mounted && (
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
             style={{
-              marginTop:   "1rem",
-              padding:     "0.5rem 1.5rem",
-              background:  "transparent",
-              border:      "1px solid rgba(241,240,235,0.2)",
-              borderRadius:"9999px",
-              color:       "var(--cream)",
-              cursor:      "pointer",
-              display:     "flex",
-              alignItems:  "center",
-              gap:         "0.5rem",
-              fontFamily:  "var(--font-primary)",
-              fontSize:    "var(--text-xs)",
-              textTransform:"uppercase",
-              letterSpacing:"var(--tracking-wider)",
+              marginTop:     "1rem",
+              padding:       "0.5rem 1.5rem",
+              background:    "transparent",
+              border:        "1px solid rgba(241,240,235,0.25)",
+              borderRadius:  "9999px",
+              color:         "#F1F0EB",
+              cursor:        "pointer",
+              display:       "flex",
+              alignItems:    "center",
+              gap:           "0.5rem",
+              fontFamily:    "var(--font-primary)",
+              fontSize:      "var(--text-xs)",
+              textTransform: "uppercase",
+              letterSpacing: "var(--tracking-wider)",
             }}
           >
             {theme === "dark"
@@ -394,7 +412,6 @@ export default function Header() {
           </button>
         )}
 
-        {/* Decorative gold line */}
         <div
           style={{
             position:        "absolute",
@@ -403,7 +420,7 @@ export default function Header() {
             transform:       "translateX(-50%)",
             width:           "4rem",
             height:          "2px",
-            backgroundColor: "var(--gold)",
+            backgroundColor: "#D5A310",
           }}
         />
       </div>

@@ -73,14 +73,12 @@ export default function AboutSection({ id }: { id: string }) {
           {/* ━━━ LEFT: Image with gold rectangle offset ━━━ */}
           <div
             ref={leftRef}
+            className={leftIn ? "animate-fade-left" : "opacity-0"}
             style={{
               position:   "relative",
               // Extra padding bottom-right so gold block is visible
               paddingBottom: "1.5rem",
               paddingRight:  "1.5rem",
-              opacity:    leftIn ? 1 : 0,
-              transform:  leftIn ? "translateX(0)" : "translateX(-40px)",
-              transition: "opacity 0.7s ease, transform 0.7s ease",
             }}
           >
             {/* Gold solid block — behind image, offset bottom-right */}
@@ -122,10 +120,9 @@ export default function AboutSection({ id }: { id: string }) {
           {/* ━━━ RIGHT: Text content ━━━━━━━━━━━━━━━━━━━━━━━ */}
           <div
             ref={rightRef}
+            className={rightIn ? "animate-fade-right" : "opacity-0"}
             style={{
-              opacity:    rightIn ? 1 : 0,
-              transform:  rightIn ? "translateX(0)" : "translateX(40px)",
-              transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s",
+              animationDelay: "200ms",
             }}
           >
 

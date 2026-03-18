@@ -61,7 +61,7 @@ export default function HeroSection({ id }: { id: string }) {
           bottom:   0,
           width:    "48%",
         }}
-        className="hidden md:block"
+        className="hidden md:block animate-fade-in"
       >
         <Image
           src="/Hero image.jpg"
@@ -118,7 +118,7 @@ export default function HeroSection({ id }: { id: string }) {
 
           {/* Headline */}
           <h1
-            className="animate-fade-up"
+            className="animate-fade-left"
             style={{
               fontFamily:    "var(--font-primary)",
               fontSize:      "var(--text-hero)",
@@ -128,7 +128,7 @@ export default function HeroSection({ id }: { id: string }) {
               letterSpacing: "-0.01em",
               color:         "#F1F0EB",             // always cream on dark hero
               marginBottom:  "1.5rem",
-              animationDelay:"0ms",
+              animationDelay:"100ms",
             }}
           >
             Reach Your<br />
@@ -138,7 +138,7 @@ export default function HeroSection({ id }: { id: string }) {
 
           {/* Body text */}
           <p
-            className="animate-fade-up"
+            className="animate-fade-left"
             style={{
               fontFamily:    "var(--font-primary)",
               fontSize:      "var(--text-base)",
@@ -147,7 +147,7 @@ export default function HeroSection({ id }: { id: string }) {
               color:         "rgba(241,240,235,0.65)",
               maxWidth:      "460px",
               marginBottom:  "2.5rem",
-              animationDelay:"120ms",
+              animationDelay:"250ms",
             }}
           >
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -158,12 +158,12 @@ export default function HeroSection({ id }: { id: string }) {
 
           {/* CTA buttons */}
           <div
-            className="animate-fade-up"
+            className="animate-fade-left"
             style={{
               display:       "flex",
               flexWrap:      "wrap",
               gap:           "1rem",
-              animationDelay:"240ms",
+              animationDelay:"400ms",
             }}
           >
             {/* LEARN MORE — white outline, matches Figma exactly */}
@@ -234,8 +234,8 @@ export default function HeroSection({ id }: { id: string }) {
         </div>
       </div>
 
-      {/* ── Bottom-left: gold decorative line ────── */}
       <div
+        className="animate-fade-up"
         style={{
           position:        "absolute",
           bottom:          "2.5rem",
@@ -244,11 +244,13 @@ export default function HeroSection({ id }: { id: string }) {
           width:           "3.5rem",
           height:          "3px",
           backgroundColor: "#D5A310",
+          animationDelay:  "600ms",
         }}
       />
 
       {/* ── Bottom-right: SOCIAL + icons ─────────── */}
       <div
+        className="animate-fade-up"
         style={{
           position:   "absolute",
           bottom:     "2.4rem",
@@ -257,6 +259,7 @@ export default function HeroSection({ id }: { id: string }) {
           display:    "flex",
           alignItems: "center",
           gap:        "0.75rem",
+          animationDelay: "600ms",
         }}
       >
         <span

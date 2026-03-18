@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { NAV_LINKS } from "../../lib/constants";
 
-// ─── Social icons ────────────────────────────────────────────
+// ─── Social icons ─────────────────────────────────────────────
 const SocialIcons = {
   facebook: (
     <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: "1rem", height: "1rem" }} aria-hidden="true">
@@ -43,7 +45,10 @@ const CONTACT_INFO = {
   location: "Pita Kotte, Sri Lanka",
 };
 
-// ─── Reusable sub-components ─────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// Footer adapts to theme.
+// ─────────────────────────────────────────────────────────────
+
 function ColHeading({ children }: { children: React.ReactNode }) {
   return (
     <p
@@ -53,7 +58,7 @@ function ColHeading({ children }: { children: React.ReactNode }) {
         fontWeight:    "var(--weight-semibold)",
         textTransform: "uppercase",
         letterSpacing: "var(--tracking-wider)",
-        color:         "var(--cream)",
+        color:         "var(--text-primary)",
         marginBottom:  "1.25rem",
       }}
     >
@@ -67,23 +72,28 @@ function FooterNavLink({ href, children }: { href: string; children: React.React
     <a
       href={href}
       style={{
-        display:       "block",
-        fontFamily:    "var(--font-primary)",
-        fontSize:      "var(--text-sm)",
-        fontWeight:    "var(--weight-medium)",
-        textTransform: "uppercase",
-        letterSpacing: "var(--tracking-wide)",
-        color:         "rgba(241,240,235,0.65)",
-        textDecoration:"none",
-        lineHeight:    "2",
-        transition:    "color 0.2s",
+        display:        "block",
+        fontFamily:     "var(--font-primary)",
+        fontSize:       "var(--text-sm)",
+        fontWeight:     "var(--weight-medium)",
+        textTransform:  "uppercase",
+        letterSpacing:  "var(--tracking-wide)",
+        color:          "var(--text-secondary)",
+        opacity:        0.7,
+        textDecoration: "none",
+        lineHeight:     "2.2",
+        transition:     "color 0.2s, opacity 0.2s",
       }}
-      onMouseEnter={(e) =>
-        ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
-      }
-      onMouseLeave={(e) =>
-        ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.65)")
-      }
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLAnchorElement;
+        el.style.color = "#D5A310";
+        el.style.opacity = "1";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLAnchorElement;
+        el.style.color = "var(--text-secondary)";
+        el.style.opacity = "0.7";
+      }}
     >
       {children}
     </a>
@@ -99,7 +109,8 @@ function InfoLabel({ children }: { children: React.ReactNode }) {
         fontWeight:    "var(--weight-semibold)",
         textTransform: "uppercase",
         letterSpacing: "var(--tracking-wider)",
-        color:         "rgba(241,240,235,0.35)",
+        color:         "var(--text-muted)",
+        opacity:        0.6,
         marginBottom:  "0.2rem",
       }}
     >
@@ -108,67 +119,62 @@ function InfoLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function InfoValue({
-  href,
-  children,
-}: {
-  href?: string;
-  children: React.ReactNode;
-}) {
-  const style: React.CSSProperties = {
-    fontFamily:    "var(--font-primary)",
-    fontSize:      "var(--text-sm)",
-    color:         "rgba(241,240,235,0.65)",
-    textDecoration:"none",
-    transition:    "color 0.2s",
-    display:       "block",
-    marginBottom:  "1rem",
+function InfoValue({ href, children }: { href?: string; children: React.ReactNode }) {
+  const baseStyle: React.CSSProperties = {
+    fontFamily:     "var(--font-primary)",
+    fontSize:       "var(--text-sm)",
+    color:          "var(--text-secondary)",
+    opacity:        0.8,
+    textDecoration: "none",
+    display:        "block",
+    marginBottom:   "1rem",
+    transition:     "color 0.2s, opacity 0.2s",
   };
 
   if (href) {
     return (
       <a
         href={href}
-        style={style}
-        onMouseEnter={(e) =>
-          ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
-        }
-        onMouseLeave={(e) =>
-          ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.65)")
-        }
+        style={baseStyle}
+        onMouseEnter={(e) => {
+          const el = e.currentTarget as HTMLAnchorElement;
+          el.style.color = "#D5A310";
+          el.style.opacity = "1";
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget as HTMLAnchorElement;
+          el.style.color = "var(--text-secondary)";
+          el.style.opacity = "0.8";
+        }}
       >
         {children}
       </a>
     );
   }
-  return <p style={{ ...style }}>{children}</p>;
+  return <p style={baseStyle}>{children}</p>;
 }
 
 // ─────────────────────────────────────────────────────────────
 export default function Footer() {
   const year = new Date().getFullYear();
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted ? theme === "dark" : true;
 
   return (
-    <footer style={{ backgroundColor: "var(--black)" }}>
-
+    <footer
+      style={{
+        backgroundColor: "var(--bg-page)",
+        transition: "background-color 0.3s ease",
+      }}
+    >
       {/* Gold top accent line */}
-      <div style={{ height: "3px", backgroundColor: "var(--gold)", width: "100%" }} />
+      <div style={{ height: "3px", backgroundColor: "#D5A310", width: "100%" }} />
 
       {/* Main grid */}
-      <div
-        style={{
-          maxWidth: "1280px",
-          margin:   "0 auto",
-          padding:  "4rem 2rem",
-        }}
-      >
-        {/*
-          4-column layout matching Figma:
-          [Logo]  [Quick Links]  [Information]  [Social Media]
-
-          On mobile: 1 column stacked.
-          Logo column is slightly wider to balance the layout.
-        */}
+      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "4rem 2rem" }}>
         <div
           style={{
             display:             "grid",
@@ -178,22 +184,29 @@ export default function Footer() {
           className="max-md:grid-cols-2 max-sm:grid-cols-1"
         >
 
-          {/* ── Col 1: Logo ─────────────────────── */}
+          {/* ── Col 1: Logo ───────────────────────── */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <a href="#home" aria-label="Go to top" style={{ display: "inline-block", lineHeight: 0 }}>
+            <a
+              href="#home"
+              aria-label="Go to top"
+              style={{ display: "inline-block", lineHeight: 0 }}
+            >
               <Image
                 src="/logo.png"
                 alt="Fitness Gym Logo"
                 width={200}
                 height={70}
-                style={{ height: "72px", width: "auto", objectFit: "contain" }}
+                style={{ 
+                  height: "72px", 
+                  width: "auto", 
+                  objectFit: "contain"
+                }}
               />
             </a>
-            {/* Decorative gold rule below logo */}
-            <div style={{ width: "2.5rem", height: "2px", backgroundColor: "var(--gold)" }} />
+            <div style={{ width: "2.5rem", height: "2px", backgroundColor: "#D5A310" }} />
           </div>
 
-          {/* ── Col 2: Quick Links ───────────────── */}
+          {/* ── Col 2: Quick Links ────────────────── */}
           <div>
             <ColHeading>Quick Links</ColHeading>
             <nav aria-label="Footer navigation">
@@ -205,7 +218,7 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* ── Col 3: Information ───────────────── */}
+          {/* ── Col 3: Information ────────────────── */}
           <div>
             <ColHeading>Information</ColHeading>
 
@@ -223,13 +236,9 @@ export default function Footer() {
             <InfoValue>{CONTACT_INFO.location}</InfoValue>
           </div>
 
-          {/* ── Col 4: Social Media ──────────────── */}
+          {/* ── Col 4: Social Media ───────────────── */}
           <div>
             <ColHeading>Social Media</ColHeading>
-            {/*
-              Figma shows icons stacked VERTICALLY, one per row.
-              Each is a small square icon box.
-            */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {SOCIAL_LINKS.map((s) => (
                 <a
@@ -239,27 +248,27 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label={s.label}
                   style={{
-                    display:         "inline-flex",
-                    alignItems:      "center",
-                    justifyContent:  "center",
-                    width:           "2.25rem",
-                    height:          "2.25rem",
-                    border:          "1px solid rgba(44,44,44,0.9)",
-                    borderRadius:    "4px",
-                    color:           "rgba(241,240,235,0.6)",
-                    textDecoration:  "none",
-                    transition:      "border-color 0.2s, color 0.2s, background 0.2s",
+                    display:        "inline-flex",
+                    alignItems:     "center",
+                    justifyContent: "center",
+                    width:          "2.25rem",
+                    height:         "2.25rem",
+                    border:         isDark ? "1px solid rgba(241,240,235,0.15)" : "1px solid rgba(4,3,4,0.15)",
+                    borderRadius:   "4px",
+                    color:          isDark ? "rgba(241,240,235,0.55)" : "rgba(4,3,4,0.55)",
+                    textDecoration: "none",
+                    transition:     "border-color 0.2s, color 0.2s, background 0.2s",
                   }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.borderColor = "var(--gold)";
-                    el.style.color       = "var(--gold)";
-                    el.style.background  = "rgba(213,163,16,0.08)";
+                    el.style.borderColor = "#D5A310";
+                    el.style.color       = "#D5A310";
+                    el.style.background  = "rgba(213,163,16,0.1)";
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.borderColor = "rgba(44,44,44,0.9)";
-                    el.style.color       = "rgba(241,240,235,0.6)";
+                    el.style.borderColor = isDark ? "rgba(241,240,235,0.15)" : "rgba(4,3,4,0.15)";
+                    el.style.color       = isDark ? "rgba(241,240,235,0.55)" : "rgba(4,3,4,0.55)";
                     el.style.background  = "transparent";
                   }}
                 >
@@ -273,11 +282,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom copyright bar */}
-      <div
-        style={{
-          borderTop: "1px solid rgba(44,44,44,0.8)",
-        }}
-      >
+      <div style={{ borderTop: isDark ? "1px solid rgba(241,240,235,0.08)" : "1px solid rgba(4,3,4,0.08)" }}>
         <div
           style={{
             maxWidth:       "1280px",
@@ -296,7 +301,9 @@ export default function Footer() {
               fontSize:      "var(--text-xs)",
               textTransform: "uppercase",
               letterSpacing: "var(--tracking-wide)",
-              color:         "rgba(241,240,235,0.3)",
+              color:         "var(--text-muted)",
+              opacity:       0.5,
+              margin:        0,
             }}
           >
             © {year} Fitness Sports Center. All rights reserved.
@@ -304,26 +311,30 @@ export default function Footer() {
           <a
             href="#"
             style={{
-              fontFamily:    "var(--font-primary)",
-              fontSize:      "var(--text-xs)",
-              textTransform: "uppercase",
-              letterSpacing: "var(--tracking-wide)",
-              color:         "rgba(241,240,235,0.3)",
-              textDecoration:"none",
-              transition:    "color 0.2s",
+              fontFamily:     "var(--font-primary)",
+              fontSize:       "var(--text-xs)",
+              textTransform:  "uppercase",
+              letterSpacing:  "var(--tracking-wide)",
+              color:          "var(--text-muted)",
+              opacity:        0.5,
+              textDecoration: "none",
+              transition:     "color 0.2s, opacity 0.2s",
             }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.3)")
-            }
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement;
+              el.style.color = "#D5A310";
+              el.style.opacity = "1";
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement;
+              el.style.color = "var(--text-muted)";
+              el.style.opacity = "0.5";
+            }}
           >
             Privacy Policy
           </a>
         </div>
       </div>
-
     </footer>
   );
 }

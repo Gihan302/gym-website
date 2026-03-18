@@ -155,10 +155,8 @@ export default function TestimonialSection({ id }: { id: string }) {
           margin:    "0 auto",
           padding:   "0 2rem",
           textAlign: "center",
-          opacity:   inView ? 1 : 0,
-          transform: inView ? "translateY(0)" : "translateY(28px)",
-          transition:"opacity 0.7s ease, transform 0.7s ease",
         }}
+        className={inView ? "animate-fade-up" : "opacity-0"}
       >
 
         {/* ── Section label: "Testimonial" + gold underline ── */}

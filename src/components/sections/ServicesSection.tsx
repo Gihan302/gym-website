@@ -101,12 +101,10 @@ export default function ServicesSection({ id }: { id: string }) {
         {/* ── Section heading ───────────────────── */}
         <div
           ref={headRef}
+          className={headIn ? "animate-fade-up" : "opacity-0"}
           style={{
             textAlign: "center",
             marginBottom: "3.5rem",
-            opacity: headIn ? 1 : 0,
-            transform: headIn ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.6s ease, transform 0.6s ease",
           }}
         >
           {/* "What we do" small label */}
@@ -148,8 +146,6 @@ export default function ServicesSection({ id }: { id: string }) {
             display:             "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
             gap:                 "1.25rem",
-            opacity:  gridIn ? 1 : 0,
-            transition: "opacity 0.7s ease 0.1s",
           }}
           className="max-md:grid-cols-1 max-lg:grid-cols-2"
         >
@@ -188,14 +184,12 @@ function ServiceCard({
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className={inView ? "animate-fade-up" : "opacity-0"}
       style={{
         position:   "relative",
         overflow:   "hidden",
         cursor:     "pointer",
-        // Staggered entrance
-        opacity:    inView ? 1 : 0,
-        transform:  inView ? "translateY(0)" : "translateY(32px)",
-        transition: `opacity 0.6s ease ${index * 120}ms, transform 0.6s ease ${index * 120}ms`,
+        animationDelay: `${index * 150}ms`,
       }}
     >
       {/* Card image */}
