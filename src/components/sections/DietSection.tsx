@@ -18,7 +18,6 @@ function useInView(threshold = 0.1) {
   return { ref, inView };
 }
 
-// ─── Full 7-day meal plan data ────────────────────────────────
 const MEAL_PLAN = [
   {
     day: "Monday", short: "Mon",
@@ -92,9 +91,7 @@ const MEAL_PLAN = [
   },
 ];
 
-// ─── Keyframe injection — runs once on mount ─────────────────
-// Since we can't use a CSS module, we inject the animation
-// keyframes into a <style> tag inside the component.
+// ─── All injected keyframes ───────────────────────────────────
 const DIET_STYLES = `
   @keyframes dietFadeIn {
     from { opacity: 0; transform: translateY(8px); }
@@ -104,13 +101,93 @@ const DIET_STYLES = `
     from { opacity: 0; transform: translateX(-10px); }
     to   { opacity: 1; transform: translateX(0); }
   }
+
+  /* ── Light beam that orbits the meal card ── */
+  @keyframes beamOrbit {
+    0%   { transform: rotate(0deg)   translateX(160px) rotate(0deg);   opacity: 0.7; }
+    25%  { opacity: 1; }
+    50%  { transform: rotate(180deg) translateX(160px) rotate(-180deg); opacity: 0.7; }
+    75%  { opacity: 1; }
+    100% { transform: rotate(360deg) translateX(160px) rotate(-360deg); opacity: 0.7; }
+  }
+
+  /* ── Pulsing corner glow ── */
+  @keyframes cornerGlow {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 1;   }
+  }
+
+  /* ── Border sweep ── */
+  @keyframes borderSweep {
+    0%   { background-position: 0%   50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0%   50%; }
+  }
+
   .diet-fade-in  { animation: dietFadeIn   0.35s ease forwards; }
   .diet-fade-out { opacity: 0; transform: translateY(-6px); transition: opacity 0.2s ease, transform 0.2s ease; }
   .meal-row-in   { animation: mealRowSlide 0.35s ease both; }
   .diet-tab-scroll { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
   .diet-tab-scroll::-webkit-scrollbar { display: none; }
+
+  /* Light beam orbiting dot */
+  .beam-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #D5A310;
+    box-shadow: 0 0 8px 3px rgba(213,163,16,0.6), 0 0 20px 6px rgba(213,163,16,0.25);
+    top: 50%;
+    left: 50%;
+    margin-top: -3px;
+    margin-left: -3px;
+    animation: beamOrbit 3s linear infinite;
+    pointer-events: none;
+  }
+  .beam-dot:nth-child(2) {
+    animation-delay: -1.5s;
+    width: 4px;
+    height: 4px;
+    background: rgba(213,163,16,0.7);
+    box-shadow: 0 0 6px 2px rgba(213,163,16,0.4);
+    animation-duration: 3s;
+  }
+
+  /* Corner accent pulses */
+  .card-corner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+    animation: cornerGlow 2s ease-in-out infinite;
+  }
+  .card-corner-tl { top: -1px; left: -1px; border-top: 2px solid #D5A310; border-left: 2px solid #D5A310; animation-delay: 0s; }
+  .card-corner-tr { top: -1px; right: -1px; border-top: 2px solid #D5A310; border-right: 2px solid #D5A310; animation-delay: 0.5s; }
+  .card-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #D5A310; border-left: 2px solid #D5A310; animation-delay: 1s; }
+  .card-corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid #D5A310; border-right: 2px solid #D5A310; animation-delay: 1.5s; }
+
+  /* Animated border gradient around card */
+  .card-glow-border {
+    position: absolute;
+    inset: -1.5px;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(213,163,16,0) 20%,
+      rgba(213,163,16,0.6) 50%,
+      rgba(213,163,16,0) 80%,
+      transparent 100%
+    );
+    background-size: 200% 200%;
+    animation: borderSweep 2.5s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
 `;
 
+// ─────────────────────────────────────────────────────────────
 export default function DietSection({ id }: { id: string }) {
   const { ref: sectionRef, inView }        = useInView(0.05);
   const { ref: leftRef,   inView: leftIn } = useInView(0.1);
@@ -124,11 +201,7 @@ export default function DietSection({ id }: { id: string }) {
   const selectDay = (i: number) => {
     if (i === activeDay || animating) return;
     setAnimating(true);
-    // Brief fade-out, then swap content and fade in
-    setTimeout(() => {
-      setActiveDay(i);
-      setAnimating(false);
-    }, 200);
+    setTimeout(() => { setActiveDay(i); setAnimating(false); }, 200);
   };
 
   return (
@@ -142,10 +215,54 @@ export default function DietSection({ id }: { id: string }) {
         position:        "relative",
       }}
     >
-      {/* Inject keyframes */}
       <style>{DIET_STYLES}</style>
 
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 1.25rem" }}>
+      {/* ━━━ STICKY "FITNESS" WATERMARK ━━━━━━━━━━━━━━━━━━━━━━━
+          position: sticky keeps it fixed within the section
+          while the user scrolls through the content.
+          top: 50% centres it vertically in the viewport.
+          translate(-50%, -50%) centres the text itself.
+          pointer-events: none + z-index: 0 keeps it behind content.
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div
+        aria-hidden="true"
+        style={{
+          // Sticky: stays in viewport while section is visible
+          position:    "sticky",
+          top:         "30%",
+          left:        "75%",
+          // Pull out of flow height so it doesn't push content
+          height:      0,
+          overflow:    "visible",
+          zIndex:      0,
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{
+          fontFamily:    "var(--font-primary)",
+          // Larger than before — clamp from 5rem up to 14rem
+          fontSize:      "clamp(5rem, 16vw, 14rem)",
+          fontWeight:    "var(--weight-bold)",
+          textTransform: "uppercase",
+          letterSpacing: "-0.04em",
+          lineHeight:    1,
+          color:         "transparent",
+          // Increased opacity: was 0.12, now 0.28
+          WebkitTextStroke: "2px rgba(213,163,16,0.28)",
+          userSelect:    "none",
+          whiteSpace:    "nowrap",
+          // Centre horizontally in the section
+          position:      "absolute",
+          left:          "25%",
+          bottom:        "50",
+          transform:     "translateX(-50%) translateY(-50%)",
+        }}>
+          FITNESS
+        </div>
+      </div>
+
+      {/* Main content — sits above the watermark */}
+      <div style={{ position: "relative", zIndex: 1, maxWidth: "1280px", margin: "0 auto", padding: "0 1.25rem" }}>
 
         {/* ── Heading ───────────────────────────── */}
         <div
@@ -157,7 +274,7 @@ export default function DietSection({ id }: { id: string }) {
             fontFamily: "var(--font-primary)", fontSize: "var(--text-label)",
             fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
             letterSpacing: "var(--tracking-widest)", color: "var(--text-primary)",
-            paddingBottom: "0.35rem", borderBottom: "2px solid #D5A310",
+            paddingBottom: "0.35rem", borderBottom: "2px solid var(--gold)",
             marginBottom: "1.25rem",
           }}>
             Diet
@@ -169,17 +286,18 @@ export default function DietSection({ id }: { id: string }) {
             lineHeight: "var(--leading-tight)", color: "var(--text-primary)", margin: 0,
           }}>
             Get Your{" "}
-            <span style={{ color: "#D5A310" }}>Own Diet Plan!</span>
+            <span style={{ color: "var(--gold)" }}>Own Diet Plan!</span>
           </h2>
         </div>
 
         {/* ── Two-column grid ───────────────────── */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "clamp(2rem, 5vw, 4rem)",
-          alignItems: "start",
-        }}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "clamp(2rem, 5vw, 4rem)",
+            alignItems: "start",
+          }}
           className="max-lg:grid-cols-1"
         >
 
@@ -187,182 +305,199 @@ export default function DietSection({ id }: { id: string }) {
           <div
             ref={leftRef}
             className={leftIn ? "animate-fade-left" : "opacity-0"}
-            style={{ position: "relative" }}
+            style={{ position: "relative", paddingTop: "5rem" }}
           >
-            {/* Watermark */}
-            <div aria-hidden="true" style={{
-              position: "absolute", top: "-1rem", left: "-1rem",
-              fontFamily: "var(--font-primary)",
-              fontSize: "clamp(3rem, 10vw, 9rem)",
-              fontWeight: "var(--weight-bold)", textTransform: "uppercase",
-              letterSpacing: "-0.04em", lineHeight: 1,
-              color: "transparent",
-              WebkitTextStroke: "2px rgba(213,163,16,0.12)",
-              userSelect: "none", pointerEvents: "none", zIndex: 0, whiteSpace: "nowrap",
+            <p style={{
+              fontFamily: "var(--font-primary)", fontSize: "var(--text-sm)",
+              fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
+              letterSpacing: "var(--tracking-wider)", color: "var(--gold)",
+              marginBottom: "0.75rem",
             }}>
-              Fitness
-            </div>
+              Nutrition at FitnessPlus
+            </p>
 
-            <div style={{ position: "relative", zIndex: 1, paddingTop: "5rem" }}>
-              <p style={{
-                fontFamily: "var(--font-primary)", fontSize: "var(--text-sm)",
-                fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
-                letterSpacing: "var(--tracking-wider)", color: "#D5A310",
-                marginBottom: "0.75rem",
-              }}>
-                Nutrition at FitnessPlus
-              </p>
+            <h3 style={{
+              fontFamily: "var(--font-primary)",
+              fontSize: "clamp(1rem, 2vw, 1.3rem)",
+              fontWeight: "var(--weight-bold)", textTransform: "uppercase",
+              lineHeight: "var(--leading-snug)", color: "var(--text-primary)",
+              marginBottom: "1.25rem",
+            }}>
+              Achieve your fitness goals faster with a custom-tailored diet
+              and workout plan designed just for you. Our experts will analyze
+              your needs and lifestyle to build the perfect plan.
+            </h3>
 
-              <h3 style={{
-                fontFamily: "var(--font-primary)",
-                fontSize: "clamp(1rem, 2vw, 1.3rem)",
-                fontWeight: "var(--weight-bold)", textTransform: "uppercase",
-                lineHeight: "var(--leading-snug)", color: "var(--text-primary)",
-                marginBottom: "1.25rem",
-              }}>
-                Achieve your fitness goals faster with a custom-tailored diet
-                and workout plan designed just for you. Our experts will analyze
-                your needs and lifestyle to build the perfect plan.
-              </h3>
-
-              <ContactBtn />
-            </div>
+            <ContactBtn />
           </div>
 
-          {/* ━━━ RIGHT — Meal card ━━━━━━━━━━━━━━━ */}
+          {/* ━━━ RIGHT — Meal card with light beam ━ */}
           <div
             ref={rightRef}
             className={rightIn ? "animate-fade-right" : "opacity-0"}
             style={{ animationDelay: "200ms" }}
           >
-            <div style={{ backgroundColor: "#040304", overflow: "hidden" }}>
+            {/*
+              Outer wrapper:
+              - position: relative so beam dots + corner accents are positioned inside
+              - overflow: visible so the orbiting dots can go outside the card rect
+              - padding: small gap so the glow border doesn't overlap content
+            */}
+            <div style={{ position: "relative", padding: "6px" }}>
 
-              {/* Gold dome header */}
-              <div style={{
-                backgroundColor: "#D5A310",
-                padding: "1.5rem 2rem 2.5rem",
-                clipPath: "ellipse(55% 100% at 50% 0%)",
-                textAlign: "center",
-              }}>
-                <p style={{
-                  fontFamily: "var(--font-primary)", fontSize: "var(--text-h3)",
-                  fontWeight: "var(--weight-bold)", textTransform: "uppercase",
-                  letterSpacing: "var(--tracking-wide)", color: "#040304",
-                  marginBottom: "0.25rem",
-                }}>
-                  Weekly Meal Plan
-                </p>
-                <p style={{
-                  fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
-                  color: "rgba(4,3,4,0.65)",
-                }}>
-                  For inquiries +94 115 462 011
-                </p>
-              </div>
+              {/* ── Animated border sweep ───────────── */}
+              <div className="card-glow-border" />
 
-              {/* ── Day filter tabs ──────────────── */}
+              {/* ── Orbiting beam dots ──────────────── */}
+              {/*
+                These sit in the centre of the wrapper and
+                use CSS animation to orbit outward via translateX.
+                The wrapper is position:relative so 50%/50% = card centre.
+              */}
               <div
-                className="diet-tab-scroll"
                 style={{
-                  display: "flex",
-                  backgroundColor: "#292113",
-                  padding: "0 1rem",
+                  position:       "absolute",
+                  top:            "50%",
+                  left:           "50%",
+                  width:          0,
+                  height:         0,
+                  pointerEvents:  "none",
+                  zIndex:         10,
                 }}
               >
-                {MEAL_PLAN.map((d, i) => {
-                  const isActive = i === activeDay;
-                  return (
+                <div className="beam-dot" />
+                <div className="beam-dot" />
+              </div>
+
+              {/* ── Pulsing corner accents ──────────── */}
+              <div className="card-corner card-corner-tl" />
+              <div className="card-corner card-corner-tr" />
+              <div className="card-corner card-corner-bl" />
+              <div className="card-corner card-corner-br" />
+
+              {/* ── Actual card ─────────────────────── */}
+              <div style={{
+                backgroundColor: "var(--black)",
+                overflow:        "hidden",
+                position:        "relative",
+                zIndex:          1,
+              }}>
+
+                {/* Gold dome header */}
+                <div style={{
+                  backgroundColor: "var(--gold)",
+                  padding: "1.5rem 2rem 2.5rem",
+                  clipPath: "ellipse(55% 100% at 50% 0%)",
+                  textAlign: "center",
+                }}>
+                  <p style={{
+                    fontFamily: "var(--font-primary)", fontSize: "var(--text-h3)",
+                    fontWeight: "var(--weight-bold)", textTransform: "uppercase",
+                    letterSpacing: "var(--tracking-wide)", color: "var(--black)",
+                    marginBottom: "0.25rem",
+                  }}>
+                    Weekly Meal Plan
+                  </p>
+                  <p style={{
+                    fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
+                    color: "rgba(4,3,4,0.65)",
+                  }}>
+                    For inquiries +94 115 462 011
+                  </p>
+                </div>
+
+                {/* Day tabs */}
+                <div
+                  className="diet-tab-scroll"
+                  style={{ display: "flex", backgroundColor: "var(--brown)", padding: "0 1rem" }}
+                >
+                  {MEAL_PLAN.map((d, i) => (
                     <DayTab
                       key={d.day}
                       label={d.short}
-                      active={isActive}
+                      active={i === activeDay}
                       onClick={() => selectDay(i)}
                     />
-                  );
-                })}
-              </div>
-
-              {/* ── Content area ─────────────────── */}
-              <div
-                className={animating ? "diet-fade-out" : "diet-fade-in"}
-                style={{ padding: "1.25rem 1.5rem 1.75rem" }}
-              >
-
-                {/* Macro summary bar */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1px 1fr 1px 1fr 1px 1fr",
-                  backgroundColor: "#292113",
-                  padding: "0.75rem 0.5rem",
-                  marginBottom: "1.25rem",
-                }}>
-                  <MacroItem label="Calories" value={`${plan.calories}`} />
-                  <div style={{ backgroundColor: "rgba(241,240,235,0.08)", height: "2rem", alignSelf: "center" }} />
-                  <MacroItem label="Protein"  value={`${plan.protein}g`} />
-                  <div style={{ backgroundColor: "rgba(241,240,235,0.08)", height: "2rem", alignSelf: "center" }} />
-                  <MacroItem label="Carbs"    value={`${plan.carbs}g`} />
-                  <div style={{ backgroundColor: "rgba(241,240,235,0.08)", height: "2rem", alignSelf: "center" }} />
-                  <MacroItem label="Fat"      value={`${plan.fat}g`} />
+                  ))}
                 </div>
 
-                {/* Meal rows */}
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  {plan.meals.map((meal, i) => (
-                    <div
-                      key={meal.time}
-                      className="meal-row-in"
-                      style={{
-                        display: "flex", gap: "0.85rem", alignItems: "flex-start",
-                        paddingBlock: "0.8rem",
-                        borderBottom: i < plan.meals.length - 1
-                          ? "1px solid rgba(241,240,235,0.07)"
-                          : "none",
-                        animationDelay: `${i * 60}ms`,
-                      }}
-                    >
-                      {/* Gold bullet */}
-                      <div style={{
-                        width: "7px", height: "7px", borderRadius: "50%",
-                        backgroundColor: "#D5A310", marginTop: "5px", flexShrink: 0,
-                      }} />
+                {/* Content */}
+                <div
+                  className={animating ? "diet-fade-out" : "diet-fade-in"}
+                  style={{ padding: "1.25rem 1.5rem 1.75rem" }}
+                >
+                  {/* Macro bar */}
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1px 1fr 1px 1fr 1px 1fr",
+                    backgroundColor: "var(--brown)",
+                    padding: "0.75rem 0.5rem",
+                    marginBottom: "1.25rem",
+                  }}>
+                    <MacroItem label="Calories" value={`${plan.calories}`} />
+                    <div style={{ backgroundColor: "rgba(241,240,235,0.08)", height: "2rem", alignSelf: "center" }} />
+                    <MacroItem label="Protein"  value={`${plan.protein}g`} />
+                    <div style={{ backgroundColor: "rgba(241,240,235,0.08)", height: "2rem", alignSelf: "center" }} />
+                    <MacroItem label="Carbs"    value={`${plan.carbs}g`} />
+                    <div style={{ backgroundColor: "rgba(241,240,235,0.08)", height: "2rem", alignSelf: "center" }} />
+                    <MacroItem label="Fat"      value={`${plan.fat}g`} />
+                  </div>
 
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        {/* Time + cal badge row */}
+                  {/* Meal rows */}
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    {plan.meals.map((meal, i) => (
+                      <div
+                        key={meal.time}
+                        className="meal-row-in"
+                        style={{
+                          display: "flex", gap: "0.85rem", alignItems: "flex-start",
+                          paddingBlock: "0.8rem",
+                          borderBottom: i < plan.meals.length - 1
+                            ? "1px solid rgba(241,240,235,0.07)"
+                            : "none",
+                          animationDelay: `${i * 60}ms`,
+                        }}
+                      >
                         <div style={{
-                          display: "flex", alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: "0.5rem", marginBottom: "0.2rem", flexWrap: "wrap",
-                        }}>
+                          width: "7px", height: "7px", borderRadius: "50%",
+                          backgroundColor: "var(--gold)", marginTop: "5px", flexShrink: 0,
+                        }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            display: "flex", alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "0.5rem", marginBottom: "0.2rem", flexWrap: "wrap",
+                          }}>
+                            <p style={{
+                              fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
+                              fontWeight: "var(--weight-bold)", textTransform: "uppercase",
+                              letterSpacing: "var(--tracking-wide)", color: "var(--gold)",
+                              margin: 0, flexShrink: 0,
+                            }}>
+                              {meal.time}
+                            </p>
+                            <span style={{
+                              fontFamily: "var(--font-primary)", fontSize: "0.62rem",
+                              fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
+                              letterSpacing: "var(--tracking-wide)",
+                              color: "rgba(213,163,16,0.7)",
+                              backgroundColor: "rgba(213,163,16,0.1)",
+                              padding: "0.1rem 0.5rem", borderRadius: "2px", whiteSpace: "nowrap",
+                            }}>
+                              {meal.cal} cal
+                            </span>
+                          </div>
                           <p style={{
                             fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
-                            fontWeight: "var(--weight-bold)", textTransform: "uppercase",
-                            letterSpacing: "var(--tracking-wide)", color: "#D5A310",
-                            margin: 0, flexShrink: 0,
+                            lineHeight: "var(--leading-normal)",
+                            color: "rgba(241,240,235,0.55)", margin: 0,
                           }}>
-                            {meal.time}
+                            {meal.items}
                           </p>
-                          <span style={{
-                            fontFamily: "var(--font-primary)", fontSize: "0.62rem",
-                            fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
-                            letterSpacing: "var(--tracking-wide)",
-                            color: "rgba(213,163,16,0.7)",
-                            backgroundColor: "rgba(213,163,16,0.1)",
-                            padding: "0.1rem 0.5rem", borderRadius: "2px", whiteSpace: "nowrap",
-                          }}>
-                            {meal.cal} cal
-                          </span>
                         </div>
-                        {/* Meal description */}
-                        <p style={{
-                          fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
-                          lineHeight: "var(--leading-normal)",
-                          color: "rgba(241,240,235,0.55)", margin: 0,
-                        }}>
-                          {meal.items}
-                        </p>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
 
               </div>
@@ -375,7 +510,6 @@ export default function DietSection({ id }: { id: string }) {
   );
 }
 
-// ─── Day tab button ───────────────────────────────────────────
 function DayTab({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   const [hov, setHov] = useState(false);
   return (
@@ -384,22 +518,16 @@ function DayTab({ label, active, onClick }: { label: string; active: boolean; on
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        flex: 1,
-        minWidth: "2.5rem",
+        flex: 1, minWidth: "2.5rem",
         padding: "0.6rem 0.4rem",
-        background: "transparent",
-        border: "none",
-        borderBottom: `2px solid ${active ? "#D5A310" : "transparent"}`,
-        fontFamily: "var(--font-primary)",
-        fontSize: "var(--text-xs)",
-        fontWeight: "var(--weight-semibold)",
-        textTransform: "uppercase",
+        background: "transparent", border: "none",
+        borderBottom: `2px solid ${active ? "var(--gold)" : "transparent"}`,
+        fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
+        fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
         letterSpacing: "var(--tracking-wide)",
-        color: active ? "#D5A310" : hov ? "rgba(241,240,235,0.75)" : "rgba(241,240,235,0.4)",
-        cursor: "pointer",
-        transition: "color 0.2s, border-color 0.2s",
-        textAlign: "center",
-        whiteSpace: "nowrap",
+        color: active ? "var(--gold)" : hov ? "rgba(241,240,235,0.75)" : "rgba(241,240,235,0.4)",
+        cursor: "pointer", transition: "color 0.2s, border-color 0.2s",
+        textAlign: "center", whiteSpace: "nowrap",
       }}
     >
       {label}
@@ -407,13 +535,12 @@ function DayTab({ label, active, onClick }: { label: string; active: boolean; on
   );
 }
 
-// ─── Macro item ───────────────────────────────────────────────
 function MacroItem({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ textAlign: "center", padding: "0.25rem 0.25rem" }}>
+    <div style={{ textAlign: "center", padding: "0.25rem" }}>
       <p style={{
         fontFamily: "var(--font-primary)", fontSize: "var(--text-sm)",
-        fontWeight: "var(--weight-bold)", color: "#D5A310",
+        fontWeight: "var(--weight-bold)", color: "var(--gold)",
         marginBottom: "0.1rem", lineHeight: 1,
       }}>
         {value}
@@ -430,7 +557,6 @@ function MacroItem({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── Contact button ───────────────────────────────────────────
 function ContactBtn() {
   const [hov, setHov] = useState(false);
   return (
@@ -444,14 +570,13 @@ function ContactBtn() {
         letterSpacing: "var(--tracking-widest)",
         padding: "0.85rem 2.5rem",
         background: hov ? "rgba(213,163,16,0.08)" : "transparent",
-        color: hov ? "#D5A310" : "var(--text-primary)",
-        border: `1.5px solid ${hov ? "#D5A310" : "var(--text-primary)"}`,
+        color: hov ? "var(--gold)" : "var(--text-primary)",
+        border: `1.5px solid ${hov ? "var(--gold)" : "var(--text-primary)"}`,
         cursor: "pointer",
         transition: "color 0.2s, border-color 0.2s, background 0.2s",
         marginTop: "2rem",
         display: "inline-block",
-        width: "100%",
-        maxWidth: "280px",
+        width: "100%", maxWidth: "280px",
         textAlign: "center",
       }}
     >

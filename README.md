@@ -1,36 +1,202 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏋️ gym-website
 
-## Getting Started
+A modern, fully responsive single-page gym website built with **Next.js 14**, featuring dark/light mode, smooth animations, and an interactive diet planner.
 
-First, run the development server:
+🌐 **Live Site:** [https://gihan302.github.io/gym-website/](https://gihan302.github.io/gym-website/)
+
+---
+
+## 📸 Preview
+
+| Dark Mode | Light Mode |
+|-----------|------------|
+| ![Dark mode](.github/preview-dark.png) | ![Light mode](.github/preview-light.png) |
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | [Next.js 14](https://nextjs.org/) — App Router, static export |
+| Language | [TypeScript](https://www.typescriptlang.org/) — strict mode |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com/) + inline CSS variables |
+| Theme | [next-themes](https://github.com/pacocoursey/next-themes) — dark / light toggle |
+| Forms | [React Hook Form](https://react-hook-form.com/) — validation + submission |
+| Icons | [@heroicons/react](https://heroicons.com/) — nav icons |
+| Font | [Oswald](https://fonts.google.com/specimen/Oswald) via `next/font/google` |
+| Deployment | [GitHub Pages](https://pages.github.com/) — static export via `gh-pages` |
+
+---
+
+## 🎨 Design System
+
+### Color Palette
+
+| Token | Hex | Usage |
+|-------|-----|-------|
+| `--gold` | `#D5A310` | Accent, CTAs, highlights |
+| `--black` | `#040304` | Hero bg, deep surfaces |
+| `--brown` | `#292113` | Cards, footer |
+| `--charcoal` | `#2C2C2C` | Secondary surfaces |
+| `--cream` | `#F1F0EB` | Light mode bg, text on dark |
+
+### Sections
+
+- **Hero** — fullscreen with animated word highlight
+- **About** — auto-playing image slideshow with alternating layouts
+- **Services** — sliding carousel (3 visible, 5 total)
+- **Gallery** — auto-slideshow + lightbox with thumbnail strip
+- **Why Choose Us** — 4-feature grid with image icons
+- **Testimonials** — sliding quotes with auto-advance
+- **Pricing** — 3-tier cards with feature lists
+- **Diet** — 7-day meal filter with macro summary
+- **Contact** — validated form with react-hook-form
+
+---
+
+## 🚀 Setup Instructions
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18 or higher
+- [npm](https://www.npmjs.com/) v9 or higher
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/gihan302/gym-website.git
+cd gym-website
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Build for production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+This generates the `/out` static export folder.
 
-To learn more about Next.js, take a look at the following resources:
+### 5. Preview the production build locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx serve out
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📁 Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/
+│   ├── layout.tsx          # Root layout — fonts, ThemeProvider
+│   ├── page.tsx            # Single page — all sections assembled
+│   └── globals.css         # Design tokens, animations, resets
+├── components/
+│   ├── layout/
+│   │   ├── Header.tsx      # Sticky nav, mobile menu, theme toggle
+│   │   └── Footer.tsx      # Links, contact info, social icons
+│   ├── sections/
+│   │   ├── HeroSection.tsx
+│   │   ├── AboutSection.tsx
+│   │   ├── ServicesSection.tsx
+│   │   ├── GallerySection.tsx
+│   │   ├── WhyChooseUsSection.tsx
+│   │   ├── TestimonialSection.tsx
+│   │   ├── PricingSection.tsx
+│   │   ├── DietSection.tsx
+│   │   └── ContactSection.tsx
+│   └── ui/
+│       └── Button.tsx
+├── lib/
+│   ├── constants.ts        # NAV_LINKS, site config
+│   └── utils.ts            # getAssetPath helper
+├── styles/
+│   └── tokens.css          # CSS custom properties
+└── types/
+    └── index.ts            # TypeScript interfaces
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🌙 Dark / Light Mode
+
+The site defaults to **dark mode**. Toggle using the sun/moon icon in the header.
+
+Powered by `next-themes` with `attribute="class"` — the `.dark` class is applied to `<html>`, and all colors switch via CSS custom properties defined in `globals.css`.
+
+```css
+:root       { --bg-page: #F1F0EB; --text-primary: #040304; }
+.dark       { --bg-page: #040304; --text-primary: #F1F0EB; }
+```
+
+---
+
+## 🚢 Deployment
+
+The site is deployed to GitHub Pages using the `gh-pages` package.
+
+### Manual deploy
+
+```bash
+npm run build
+npx gh-pages -d out
+```
+
+### Automatic deploy (GitHub Actions)
+
+Every push to `main` triggers `.github/workflows/deploy.yml` which builds and deploys automatically.
+
+### Base path
+
+The `next.config.ts` sets `basePath: '/gym-website'` in production so all assets resolve correctly on GitHub Pages.
+
+```ts
+const nextConfig = {
+  output: 'export',
+  basePath: process.env.GITHUB_ACTIONS ? '/gym-website' : '',
+  images: { unoptimized: true },
+};
+```
+
+---
+
+## 📦 Key Dependencies
+
+```json
+{
+  "next": "16.1.7",
+  "react": "19.2.3",
+  "next-themes": "^0.4.6",
+  "react-hook-form": "^7.71.2",
+  "@heroicons/react": "^2.2.0",
+  "tailwindcss": "^4"
+}
+```
+
+---
+
+## 📄 License
+
+This project is for personal/portfolio use. All gym imagery used is either original or licensed for use.
+
+---
+
+<div align="center">
+  Built with ❤️ using Next.js · Deployed on GitHub Pages
+</div>

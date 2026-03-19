@@ -6,9 +6,6 @@ import { useTheme } from "next-themes";
 import { getAssetPath } from "../../lib/utils";
 import { useForm } from "react-hook-form";
 
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
 interface ContactFormData {
   name:    string;
   email:   string;
@@ -16,9 +13,6 @@ interface ContactFormData {
   message: string;
 }
 
-// ─────────────────────────────────────────────
-// useInView
-// ─────────────────────────────────────────────
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -35,9 +29,6 @@ function useInView(threshold = 0.1) {
   return { ref, inView };
 }
 
-// ─────────────────────────────────────────────
-// Contact info data
-// ─────────────────────────────────────────────
 const CONTACT_INFO = [
   {
     id:    "email",
@@ -79,91 +70,11 @@ const CONTACT_INFO = [
   },
 ];
 
-// ─────────────────────────────────────────────
-// Reusable form field styles
-// ─────────────────────────────────────────────
-const inputBase: React.CSSProperties = {
-  width:           "100%",
-  fontFamily:      "var(--font-primary)",
-  fontSize:        "var(--text-sm)",
-  fontWeight:      "var(--weight-regular)",
-  color:           "var(--text-primary)",
-  backgroundColor: "var(--bg-section-dark)", // Use section dark or transparent
-  border:          "1px solid var(--border-subtle)",
-  borderRadius:    "4px",
-  padding:         "0.75rem 1rem",
-  outline:         "none",
-  transition:      "border-color 0.2s, background-color 0.2s",
-  boxSizing:       "border-box",
-};
-
-const inputFocusStyle  = "1px solid var(--gold)";
-const inputErrorStyle  = "1px solid #e05252";
-const inputNormalStyle = "1px solid var(--border-subtle)";
-
-// ─────────────────────────────────────────────
-// FormField wrapper
-// ─────────────────────────────────────────────
-function FieldLabel() {
-  return (
-    <label
-      style={{
-        display:       "block",
-        fontFamily:    "var(--font-primary)",
-        fontSize:      "var(--text-xs)",
-        fontWeight:    "var(--weight-semibold)",
-        textTransform: "uppercase",
-        letterSpacing: "var(--tracking-wider)",
-        color:         "var(--text-muted)",
-        marginBottom:  "0.4rem",
-        transition:    "color 0.3s ease",
-      }}
-    >
-      {/* Label passed as children in component */}
-    </label>
-  );
-}
-
-// Rewriting slightly for cleaner variable usage
-function ContactLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <label
-      style={{
-        display:       "block",
-        fontFamily:    "var(--font-primary)",
-        fontSize:      "var(--text-xs)",
-        fontWeight:    "var(--weight-semibold)",
-        textTransform: "uppercase",
-        letterSpacing: "var(--tracking-wider)",
-        color:         "var(--text-muted)",
-        marginBottom:  "0.4rem",
-      }}
-    >
-      {children}
-    </label>
-  );
-}
-
-function ErrorMsg({ msg }: { msg?: string }) {
-  if (!msg) return null;
-  return (
-    <p style={{ fontFamily: "var(--font-primary)", fontSize: "0.7rem", color: "#e05252", marginTop: "0.3rem" }}>
-      {msg}
-    </p>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Submit states
-// ─────────────────────────────────────────────
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
-// ─────────────────────────────────────────────
-// MAIN COMPONENT
-// ─────────────────────────────────────────────
 export default function ContactSection({ id }: { id: string }) {
-  const { theme }       = useTheme();
-  const [mounted, setMounted]   = useState(false);
+  const { theme }   = useTheme();
+  const [mounted, setMounted]         = useState(false);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
 
   const { ref: leftRef,  inView: leftIn  } = useInView(0.1);
@@ -172,19 +83,36 @@ export default function ContactSection({ id }: { id: string }) {
   useEffect(() => setMounted(true), []);
 
   const isDark = mounted ? theme === "dark" : true;
-  // Use semantic tokens from globals.css
-  const overlayColor = isDark ? "rgba(4,3,4,0.75)" : "rgba(241,240,235,0.65)";
 
-  // ── react-hook-form setup ──────────────────
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<ContactFormData>({
-    mode: "onTouched",
-    defaultValues: { name: "", email: "", subject: "", message: "" },
-  });
+  // ── Overlay: darker in dark mode, lighter in light mode ───
+  const overlayOpacity = isDark ? "0.75" : "0.58";
+
+  // ── Form card: always solid, readable in both modes ───────
+  // Dark mode:  rgba(4,3,4,0.82)   — near-black semi-transparent
+  // Light mode: rgba(255,255,255,0.92) — near-white semi-transparent
+  const cardBg = isDark
+    ? "rgba(4,3,4,0.82)"
+    : "rgba(255,255,255,0.92)";
+
+  // ── Input fields: subtle bg, clearly visible ─────────────
+  // Dark mode:  rgba(241,240,235,0.07) — very faint cream on dark
+  // Light mode: rgba(4,3,4,0.04)       — very faint dark on white
+  const inputBg = isDark
+    ? "rgba(241,240,235,0.07)"
+    : "rgba(4,3,4,0.04)";
+
+  const inputTextColor   = isDark ? "#F1F0EB" : "#040304";
+  const inputBorderNorm  = isDark ? "1px solid rgba(241,240,235,0.15)" : "1px solid rgba(4,3,4,0.18)";
+  const inputBorderFocus = "1px solid #D5A310";
+  const inputBorderError = "1px solid #e05252";
+  const labelColor       = isDark ? "rgba(241,240,235,0.55)" : "rgba(4,3,4,0.55)";
+  const cardBorderColor  = isDark ? "rgba(241,240,235,0.1)" : "rgba(4,3,4,0.1)";
+
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
+    useForm<ContactFormData>({
+      mode: "onTouched",
+      defaultValues: { name: "", email: "", subject: "", message: "" },
+    });
 
   const onSubmit = async (data: ContactFormData) => {
     setSubmitState("submitting");
@@ -200,255 +128,213 @@ export default function ContactSection({ id }: { id: string }) {
     }
   };
 
+  // Shared input base — no opacity, uses explicit rgba values
+  const inputBase: React.CSSProperties = {
+    width:           "100%",
+    fontFamily:      "var(--font-primary)",
+    fontSize:        "var(--text-sm)",
+    fontWeight:      "var(--weight-regular)",
+    color:           inputTextColor,
+    backgroundColor: inputBg,
+    border:          inputBorderNorm,
+    borderRadius:    "4px",
+    padding:         "0.75rem 1rem",
+    outline:         "none",
+    transition:      "border-color 0.2s",
+    boxSizing:       "border-box" as const,
+  };
+
   return (
     <section
       id={id}
-      style={{ 
-        position: "relative", 
-        overflow: "hidden", 
-        paddingBlock: "var(--section-padding)",
-        backgroundColor: "var(--bg-page)"
-      }}
+      style={{ position: "relative", overflow: "hidden", paddingBlock: "var(--section-padding)" }}
     >
-      {/* ── Background image + overlay ─────────── */}
+      {/* BG image + overlay */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <Image
           src={getAssetPath("/contact/contact-bg.jpg")}
-          alt=""
-          fill
-          style={{ 
-            objectFit: "cover", 
-            objectPosition: "center",
+          alt="" fill
+          style={{
+            objectFit: "cover", objectPosition: "center",
             filter: isDark ? "none" : "brightness(1.1) contrast(1.05)",
           }}
           aria-hidden="true"
         />
-        <div
-          style={{
-            position:        "absolute",
-            inset:           0,
-            backgroundColor: overlayColor,
-            transition:      "background-color 0.4s ease",
-          }}
-        />
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundColor: `rgba(4,3,4,${overlayOpacity})`,
+          transition: "background-color 0.4s ease",
+        }} />
       </div>
 
-      {/* ── Content ──────────────────────────────── */}
-      <div
-        style={{
-          position: "relative",
-          zIndex:   1,
-          maxWidth: "1280px",
-          margin:   "0 auto",
-          padding:  "0 1.5rem",
-          display:  "grid",
-          gridTemplateColumns: "1fr 1.6fr",
-          gap:      "3rem",
-          alignItems:"center",
-        }}
-        className="max-lg:grid-cols-1 max-lg:gap-12"
+      {/* Content */}
+      <div style={{
+        position: "relative", zIndex: 1,
+        maxWidth: "1280px", margin: "0 auto", padding: "0 1.5rem",
+        display: "grid",
+        gridTemplateColumns: "1fr 1.6fr",
+        gap: "3rem",
+        alignItems: "center",
+        opacity: submitState === "success" ? 0.9 : 1,
+      }}
+        className="max-lg:grid-cols-1 max-lg:gap-10"
       >
 
         {/* ━━━ LEFT: Contact info ━━━━━━━━━━━━━━━━ */}
         <div
           ref={leftRef}
           className={leftIn ? "animate-fade-left" : "opacity-0"}
-          style={{
-            display: "flex", flexDirection: "column", gap: "1.5rem"
-          }}
+          style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            {CONTACT_INFO.map((item) => (
-              <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
-
-                {/* Icon box */}
-                <div
-                  style={{
-                    width:           "2.25rem",
-                    height:          "2.25rem",
-                    backgroundColor: "var(--gold)",
-                    borderRadius:    "4px",
-                    display:         "flex",
-                    alignItems:      "center",
-                    justifyContent:  "center",
-                    color:           "var(--black)",
-                    flexShrink:      0,
-                    marginTop:       "2px",
-                  }}
-                >
-                  {item.icon}
-                </div>
-
-                {/* Label + value */}
-                <div>
-                  <p
-                    style={{
-                      fontFamily:    "var(--font-primary)",
-                      fontSize:      "var(--text-xs)",
-                      fontWeight:    "var(--weight-semibold)",
-                      textTransform: "uppercase",
-                      letterSpacing: "var(--tracking-wider)",
-                      color:         "var(--text-muted)",
-                      marginBottom:  "0.1rem",
-                      transition:    "color 0.3s ease",
-                    }}
-                  >
-                    {item.label}
-                  </p>
-                  <a
-                    href={item.href}
-                    target={item.id === "location" ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                    style={{
-                      fontFamily:    "var(--font-primary)",
-                      fontSize:      "clamp(0.9rem, 2vw, 1.1rem)",
-                      fontWeight:    "var(--weight-semibold)",
-                      color:         "var(--text-primary)",
-                      textDecoration:"none",
-                      transition:    "color 0.2s",
-                    }}
-                    onMouseEnter={(e) =>
-                      ((e.currentTarget as HTMLAnchorElement).style.color = "var(--gold)")
-                    }
-                    onMouseLeave={(e) =>
-                      ((e.currentTarget as HTMLAnchorElement).style.color = "var(--text-primary)")
-                    }
-                  >
-                    {item.value}
-                  </a>
-                </div>
+          {CONTACT_INFO.map((item) => (
+            <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+              {/* Gold icon box */}
+              <div style={{
+                width: "2.5rem", height: "2.5rem",
+                backgroundColor: "#D5A310",
+                borderRadius: "4px",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#040304", flexShrink: 0, marginTop: "2px",
+              }}>
+                {item.icon}
               </div>
-            ))}
-          </div>
+              {/* Label + value */}
+              <div>
+                <p style={{
+                  fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
+                  fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
+                  letterSpacing: "var(--tracking-wider)",
+                  color: "rgba(241,240,235,0.5)",   // always light — always on dark bg image
+                  marginBottom: "0.2rem",
+                }}>
+                  {item.label}
+                </p>
+                <a
+                  href={item.href}
+                  target={item.id === "location" ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  style={{
+                    fontFamily: "var(--font-primary)",
+                    fontSize: "clamp(0.9rem, 2vw, 1.05rem)",
+                    fontWeight: "var(--weight-semibold)",
+                    color: "#F1F0EB",   // always cream — always on dark bg image
+                    textDecoration: "none",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#D5A310")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#F1F0EB")}
+                >
+                  {item.value}
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* ━━━ RIGHT: Contact form card ━━━━━━━━━━ */}
+        {/* ━━━ RIGHT: Form card ━━━━━━━━━━━━━━━━━━ */}
         <div
           ref={rightRef}
           className={rightIn ? "animate-fade-right" : "opacity-0"}
-          style={{
-            animationDelay: "200ms",
-          }}
+          style={{ animationDelay: "150ms" }}
         >
-          <div
-            style={{
-              backgroundColor: "var(--bg-card)",
-              backdropFilter:  "blur(12px)",
-              border:          "1px solid var(--border-subtle)",
-              borderRadius:    "8px",
-              padding:         "clamp(1.5rem, 5vw, 2.5rem)",
-              boxShadow:       isDark ? "none" : "0 10px 30px rgba(0,0,0,0.05)",
-              transition:      "background-color 0.3s ease, border-color 0.3s ease",
-              opacity:         0.95, // slight transparency for glass effect
-            }}
-          >
+          <div style={{
+            // ── KEY FIX ──────────────────────────
+            // No `opacity` property on the card itself.
+            // Transparency is baked into the rgba() background color.
+            // This means text and inputs inside stay at full opacity (1)
+            // while only the background is semi-transparent.
+            backgroundColor: cardBg,
+            backdropFilter:  "blur(10px)",
+            border:          `1px solid ${cardBorderColor}`,
+            borderRadius:    "6px",
+            padding:         "clamp(1.5rem, 4vw, 2.5rem)",
+            transition:      "background-color 0.3s ease, border-color 0.3s ease",
+          }}>
+
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
               <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
 
-                {/* Row 1: Name + Email */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
-                  className="max-sm:grid-cols-1">
-                  {/* Name */}
+                {/* Name + Email row */}
+                <div
+                  style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
+                  className="max-sm:grid-cols-1"
+                >
                   <div>
-                    <ContactLabel>Name</ContactLabel>
+                    <FormLabel color={labelColor}>Name</FormLabel>
                     <input
-                      type="text"
-                      placeholder="Your name"
-                      autoComplete="name"
+                      type="text" placeholder="Your name" autoComplete="name"
                       {...register("name", {
-                        required:  "Name is required",
+                        required: "Name is required",
                         minLength: { value: 2, message: "At least 2 characters" },
                         maxLength: { value: 60, message: "Max 60 characters" },
                       })}
-                      style={{
-                        ...inputBase,
-                        backgroundColor: "rgba(var(--text-primary-rgb), 0.05)", // slightly dynamic
-                        border: errors.name ? inputErrorStyle : "1px solid var(--border-subtle)",
-                      }}
-                      onFocus={(e)  => { if (!errors.name) e.currentTarget.style.border = inputFocusStyle; }}
-                      onBlur={(e)   => { e.currentTarget.style.border = errors.name ? inputErrorStyle : "1px solid var(--border-subtle)"; }}
+                      style={{ ...inputBase, border: errors.name ? inputBorderError : inputBorderNorm }}
+                      onFocus={(e)  => { if (!errors.name) e.currentTarget.style.border = inputBorderFocus; }}
+                      onBlur={(e)   => { e.currentTarget.style.border = errors.name ? inputBorderError : inputBorderNorm; }}
                     />
                     <ErrorMsg msg={errors.name?.message} />
                   </div>
 
-                  {/* Email */}
                   <div>
-                    <ContactLabel>E mail</ContactLabel>
+                    <FormLabel color={labelColor}>E mail</FormLabel>
                     <input
-                      type="email"
-                      placeholder="your@email.com"
-                      autoComplete="email"
+                      type="email" placeholder="your@email.com" autoComplete="email"
                       {...register("email", {
                         required: "Email is required",
-                        pattern:  {
-                          value:   /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "Enter a valid email",
-                        },
+                        pattern:  { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email" },
                       })}
-                      style={{
-                        ...inputBase,
-                        backgroundColor: "rgba(var(--text-primary-rgb), 0.05)",
-                        border: errors.email ? inputErrorStyle : "1px solid var(--border-subtle)",
-                      }}
-                      onFocus={(e)  => { if (!errors.email) e.currentTarget.style.border = inputFocusStyle; }}
-                      onBlur={(e)   => { e.currentTarget.style.border = errors.email ? inputErrorStyle : "1px solid var(--border-subtle)"; }}
+                      style={{ ...inputBase, border: errors.email ? inputBorderError : inputBorderNorm }}
+                      onFocus={(e)  => { if (!errors.email) e.currentTarget.style.border = inputBorderFocus; }}
+                      onBlur={(e)   => { e.currentTarget.style.border = errors.email ? inputBorderError : inputBorderNorm; }}
                     />
                     <ErrorMsg msg={errors.email?.message} />
                   </div>
                 </div>
 
-                {/* Row 2: Subject */}
+                {/* Subject */}
                 <div>
-                  <ContactLabel>Subject</ContactLabel>
+                  <FormLabel color={labelColor}>Subject</FormLabel>
                   <input
-                    type="text"
-                    placeholder="What is this about?"
+                    type="text" placeholder="What is this about?"
                     {...register("subject", {
-                      required:  "Subject is required",
-                      minLength: { value: 3,  message: "At least 3 characters" },
+                      required: "Subject is required",
+                      minLength: { value: 3, message: "At least 3 characters" },
                       maxLength: { value: 100, message: "Max 100 characters" },
                     })}
-                    style={{
-                      ...inputBase,
-                      backgroundColor: "rgba(var(--text-primary-rgb), 0.05)",
-                      border: errors.subject ? inputErrorStyle : "1px solid var(--border-subtle)",
-                    }}
-                    onFocus={(e)  => { if (!errors.subject) e.currentTarget.style.border = inputFocusStyle; }}
-                    onBlur={(e)   => { e.currentTarget.style.border = errors.subject ? inputErrorStyle : "1px solid var(--border-subtle)"; }}
+                    style={{ ...inputBase, border: errors.subject ? inputBorderError : inputBorderNorm }}
+                    onFocus={(e)  => { if (!errors.subject) e.currentTarget.style.border = inputBorderFocus; }}
+                    onBlur={(e)   => { e.currentTarget.style.border = errors.subject ? inputBorderError : inputBorderNorm; }}
                   />
                   <ErrorMsg msg={errors.subject?.message} />
                 </div>
 
-                {/* Row 3: Message textarea */}
+                {/* Message */}
                 <div>
-                  <ContactLabel>Message</ContactLabel>
+                  <FormLabel color={labelColor}>Message</FormLabel>
                   <textarea
                     rows={5}
                     placeholder="Tell us about your fitness goals..."
                     {...register("message", {
-                      required:  "Message is required",
-                      minLength: { value: 10,   message: "At least 10 characters" },
+                      required: "Message is required",
+                      minLength: { value: 10, message: "At least 10 characters" },
                       maxLength: { value: 1000, message: "Max 1000 characters" },
                     })}
                     style={{
                       ...inputBase,
-                      backgroundColor: "rgba(var(--text-primary-rgb), 0.05)",
-                      resize:          "vertical",
-                      minHeight:       "120px",
-                      border:          errors.message ? inputErrorStyle : "1px solid var(--border-subtle)",
+                      resize:    "vertical",
+                      minHeight: "120px",
+                      border:    errors.message ? inputBorderError : inputBorderNorm,
                     }}
-                    onFocus={(e)  => { if (!errors.message) e.currentTarget.style.border = inputFocusStyle; }}
-                    onBlur={(e)   => { e.currentTarget.style.border = errors.message ? inputErrorStyle : "1px solid var(--border-subtle)"; }}
+                    onFocus={(e)  => { if (!errors.message) e.currentTarget.style.border = inputBorderFocus; }}
+                    onBlur={(e)   => { e.currentTarget.style.border = errors.message ? inputBorderError : inputBorderNorm; }}
                   />
                   <ErrorMsg msg={errors.message?.message} />
                 </div>
 
-                {/* Submit button */}
-                <div>
-                  <SubmitButton state={submitState} isSubmitting={isSubmitting} />
-                </div>
+                {/* Submit */}
+                <SubmitButton state={submitState} isSubmitting={isSubmitting} />
 
-                {/* Success / Error feedback */}
+                {/* Feedback */}
                 {submitState === "success" && (
                   <p style={{
                     fontFamily: "var(--font-primary)", fontSize: "var(--text-sm)",
@@ -478,13 +364,39 @@ export default function ContactSection({ id }: { id: string }) {
   );
 }
 
-// ─────────────────────────────────────────────
-// Submit button with loading state
-// ─────────────────────────────────────────────
+// ─── Form label ───────────────────────────────────────────────
+function FormLabel({ children, color }: { children: React.ReactNode; color: string }) {
+  return (
+    <label style={{
+      display: "block",
+      fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
+      fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
+      letterSpacing: "var(--tracking-wider)",
+      color,
+      marginBottom: "0.4rem",
+    }}>
+      {children}
+    </label>
+  );
+}
+
+// ─── Error message ────────────────────────────────────────────
+function ErrorMsg({ msg }: { msg?: string }) {
+  if (!msg) return null;
+  return (
+    <p style={{
+      fontFamily: "var(--font-primary)", fontSize: "0.7rem",
+      color: "#e05252", marginTop: "0.3rem",
+    }}>
+      {msg}
+    </p>
+  );
+}
+
+// ─── Submit button ────────────────────────────────────────────
 function SubmitButton({ state, isSubmitting }: { state: SubmitState; isSubmitting: boolean }) {
   const [hov, setHov] = useState(false);
   const isLoading = isSubmitting || state === "submitting";
-
   return (
     <button
       type="submit"
@@ -492,49 +404,30 @@ function SubmitButton({ state, isSubmitting }: { state: SubmitState; isSubmittin
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        width:          "100%",
-        fontFamily:     "var(--font-primary)",
-        fontSize:       "var(--text-sm)",
-        fontWeight:     "var(--weight-bold)",
-        textTransform:  "uppercase",
-        letterSpacing:  "var(--tracking-widest)",
-        padding:        "0.9rem 2rem",
-        backgroundColor:isLoading ? "var(--btn-primary-hover)" : hov ? "var(--btn-primary-hover)" : "var(--btn-primary-bg)",
-        color:          "var(--btn-primary-text)",
-        border:         "none",
-        cursor:         isLoading ? "not-allowed" : "pointer",
-        transition:     "background-color 0.2s",
-        display:        "flex",
-        alignItems:     "center",
-        justifyContent: "center",
-        gap:            "0.5rem",
-        opacity:        isLoading ? 0.8 : 1,
+        width: "100%",
+        fontFamily: "var(--font-primary)", fontSize: "var(--text-sm)",
+        fontWeight: "var(--weight-bold)", textTransform: "uppercase",
+        letterSpacing: "var(--tracking-widest)",
+        padding: "0.9rem 2rem",
+        backgroundColor: isLoading ? "#b8880d" : hov ? "#b8880d" : "#D5A310",
+        color: "#040304",
+        border: "none",
+        cursor: isLoading ? "not-allowed" : "pointer",
+        transition: "background-color 0.2s, transform 0.15s",
+        transform: hov && !isLoading ? "translateY(-2px)" : "translateY(0)",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
+        opacity: isLoading ? 0.8 : 1,
       }}
     >
-      {isLoading ? (
-        <>
-          <Spinner /> Sending...
-        </>
-      ) : (
-        "Send Message"
-      )}
+      {isLoading ? <><Spinner /> Sending...</> : "Send Message"}
     </button>
   );
 }
 
-// ─── Spinner ──────────────────────────────────────────────────
 function Spinner() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      style={{
-        width: "1rem", height: "1rem",
-        animation: "spin 0.8s linear infinite",
-      }}
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}
+      style={{ width: "1rem", height: "1rem", animation: "spin 0.8s linear infinite" }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <circle cx="12" cy="12" r="10" strokeOpacity={0.25} />
       <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
