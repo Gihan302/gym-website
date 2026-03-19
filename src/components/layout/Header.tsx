@@ -8,6 +8,8 @@ import { NAV_LINKS } from "../../lib/constants";
 
 export default function Header() {
   const [scrolled,    setScrolled]    = useState(false);
+  const [isVisible,   setIsVisible]   = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [mobileOpen,  setMobileOpen]  = useState(false);
   const [activeHash,  setActiveHash]  = useState("#home");
   const [mounted,     setMounted]     = useState(false);
@@ -16,7 +18,20 @@ export default function Header() {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 20);
+      
+      setLastScrollY(prev => {
+        // Only hide if scrolled down more than 80px
+        if (currentScrollY > prev && currentScrollY > 80) {
+          setIsVisible(false);
+        } else {
+          setIsVisible(true);
+        }
+        return currentScrollY;
+      });
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -73,11 +88,9 @@ export default function Header() {
   //          when not scrolled + light mode → use dark text
   // ─────────────────────────────────────────────────────────
   const isDark        = mounted ? theme === "dark" : true;
-  // Header is over dark hero at the very top, so always cream there.
-  // When scrolled, adapt to theme: dark bg/cream text in dark mode, cream bg/dark text in light mode.
-  const navTextColor  = scrolled 
-    ? (isDark ? "#F1F0EB" : "#040304") 
-    : "#F1F0EB";
+  // When scrolled: dark bg/cream text in dark mode, cream bg/dark text in light mode.
+  // When NOT scrolled: Hero is dark in dark mode (use cream), Hero is light in light mode (use dark).
+  const navTextColor  = isDark ? "#F1F0EB" : "#040304";
   const navHoverColor = "#D5A310";
 
   return (
@@ -90,7 +103,8 @@ export default function Header() {
           left:          0,
           right:         0,
           zIndex:        50,
-          transition:    "background 0.3s ease, border-color 0.3s ease",
+          transition:    "background 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
+          transform:     isVisible ? "translateY(0)" : "translateY(-100%)",
           background:    scrolled 
             ? (isDark ? "rgba(4,3,4,0.96)" : "rgba(241,240,235,0.96)") 
             : "transparent",

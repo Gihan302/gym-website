@@ -43,8 +43,9 @@ export default function GallerySection({ id }: { id: string }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // Overlay changes between dark/light mode
-  const overlayOpacity = mounted && theme === "light" ? "0.55" : "0.75";
+  const isDark = mounted ? theme === "dark" : true;
+  const overlayColor = isDark ? "rgba(4,3,4,0.75)" : "rgba(241,240,235,0.65)";
+  const textColor = isDark ? "#F1F0EB" : "#040304";
 
   return (
     <section
@@ -61,15 +62,19 @@ export default function GallerySection({ id }: { id: string }) {
           src="/gallery/gallery-bg.jpg"
           alt=""
           fill
-          style={{ objectFit: "cover", objectPosition: "center" }}
+          style={{ 
+            objectFit: "cover", 
+            objectPosition: "center",
+            filter: isDark ? "none" : "brightness(1.1) contrast(1.05)",
+          }}
           aria-hidden="true"
         />
-        {/* Overlay — darker in dark mode, slightly lighter in light mode */}
+        {/* Theme-aware overlay */}
         <div
           style={{
             position:        "absolute",
             inset:           0,
-            backgroundColor: `rgba(4,3,4,${overlayOpacity})`,
+            backgroundColor: overlayColor,
             transition:      "background-color 0.4s ease",
           }}
         />
@@ -104,10 +109,11 @@ export default function GallerySection({ id }: { id: string }) {
               fontWeight:    "var(--weight-semibold)",
               textTransform: "uppercase",
               letterSpacing: "var(--tracking-widest)",
-              color:         "#F1F0EB",
+              color:         textColor,
               paddingBottom: "0.35rem",
               borderBottom:  "2px solid #D5A310",
               marginBottom:  "1rem",
+              transition:    "color 0.3s ease",
             }}
           >
             Gallery
@@ -121,8 +127,9 @@ export default function GallerySection({ id }: { id: string }) {
               fontWeight:    "var(--weight-bold)",
               textTransform: "uppercase",
               lineHeight:    "var(--leading-tight)",
-              color:         "#F1F0EB",
+              color:         textColor,
               margin:        0,
+              transition:    "color 0.3s ease",
             }}
           >
             Take A Look{" "}
@@ -189,7 +196,7 @@ export default function GallerySection({ id }: { id: string }) {
             transition:     "opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s",
           }}
         >
-          <ViewMoreBtn />
+          <ViewMoreBtn isDark={isDark} />
         </div>
 
       </div>
@@ -257,8 +264,10 @@ function GalleryImage({
 }
 
 // ─── VIEW MORE button ─────────────────────────────────────────
-function ViewMoreBtn() {
+function ViewMoreBtn({ isDark }: { isDark: boolean }) {
   const [hov, setHov] = useState(false);
+  const btnColor = isDark ? "#F1F0EB" : "#040304";
+  
   return (
     <button
       onMouseEnter={() => setHov(true)}
@@ -270,9 +279,9 @@ function ViewMoreBtn() {
         textTransform: "uppercase",
         letterSpacing: "var(--tracking-widest)",
         padding:       "0.8rem 3rem",
-        background:    hov ? "rgba(241,240,235,0.1)" : "transparent",
-        color:         "#F1F0EB",
-        border:        "1.5px solid #F1F0EB",
+        background:    hov ? (isDark ? "rgba(241,240,235,0.1)" : "rgba(4,3,4,0.05)") : "transparent",
+        color:         btnColor,
+        border:        `1.5px solid ${btnColor}`,
         cursor:        "pointer",
         transition:    "background 0.2s ease, border-color 0.2s ease, color 0.2s ease",
         ...(hov && {

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -43,6 +44,14 @@ const SERVICES = [
 export default function ServicesSection({ id }: { id: string }) {
   const { ref: headRef, inView: headIn } = useInView(0.1);
   const { ref: gridRef, inView: gridIn } = useInView(0.1);
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted ? theme === "dark" : true;
+  const textColor = isDark ? "#F1F0EB" : "#040304";
+  const labelColor = isDark ? "#F1F0EB" : "rgba(4,3,4,0.7)";
 
   return (
     <section
@@ -54,37 +63,26 @@ export default function ServicesSection({ id }: { id: string }) {
       }}
     >
       {/* ── Full-section background image ────────── */}
-      {/*
-        Always shows bg gym image regardless of theme.
-        Overlay opacity differs: darker in dark mode, lighter in light mode.
-      */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <Image
           src="/services/services-bg.jpg"
           alt=""
           fill
-          style={{ objectFit: "cover", objectPosition: "center" }}
+          style={{ 
+            objectFit: "cover", 
+            objectPosition: "center",
+            filter: isDark ? "none" : "brightness(1.1) contrast(1.05)",
+          }}
           aria-hidden="true"
         />
-        {/* Dark overlay — dark mode: very dark, light mode: medium dark */}
-        {/* We use two layers so CSS variables can control opacity */}
+        {/* Theme-aware overlay */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            // Base always-dark layer
-            backgroundColor: "rgba(4,3,4,0.72)",
+            backgroundColor: isDark ? "rgba(4,3,4,0.75)" : "rgba(241,240,235,0.65)",
+            transition: "background-color 0.3s ease",
           }}
-          className="dark-overlay"
-        />
-        {/* Additional light-mode softener */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundColor: "rgba(241,240,235,0.18)",
-          }}
-          className="light-overlay"
         />
       </div>
 
@@ -115,14 +113,15 @@ export default function ServicesSection({ id }: { id: string }) {
               fontWeight:    "var(--weight-medium)",
               textTransform: "uppercase",
               letterSpacing: "var(--tracking-wider)",
-              color:         "#F1F0EB",
+              color:         labelColor,
               marginBottom:  "0.5rem",
+              transition:    "color 0.3s ease",
             }}
           >
             What we do
           </p>
 
-          {/* "OUR SERVICES" — OUR in cream, SERVICES in gold */}
+          {/* "OUR SERVICES" */}
           <h2
             style={{
               fontFamily:    "var(--font-primary)",
@@ -130,8 +129,9 @@ export default function ServicesSection({ id }: { id: string }) {
               fontWeight:    "var(--weight-bold)",
               textTransform: "uppercase",
               lineHeight:    "var(--leading-tight)",
-              color:         "#F1F0EB",
+              color:         textColor,
               margin:        0,
+              transition:    "color 0.3s ease",
             }}
           >
             Our{" "}
@@ -154,16 +154,6 @@ export default function ServicesSection({ id }: { id: string }) {
           ))}
         </div>
       </div>
-
-      {/* Inline styles for overlay behaviour */}
-      <style>{`
-        /* Dark mode: keep it very dark */
-        .dark .light-overlay { opacity: 0; }
-        .dark .dark-overlay  { opacity: 1; }
-        /* Light mode: slightly lighter */
-        :root .light-overlay { opacity: 1; }
-        :root .dark-overlay  { opacity: 1; }
-      `}</style>
     </section>
   );
 }

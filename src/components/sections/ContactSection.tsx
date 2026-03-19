@@ -103,7 +103,7 @@ const inputNormalStyle = "1px solid rgba(241,240,235,0.15)";
 // ─────────────────────────────────────────────
 // FormField wrapper
 // ─────────────────────────────────────────────
-function FieldLabel({ children }: { children: React.ReactNode }) {
+function FieldLabel({ children, isDark }: { children: React.ReactNode; isDark: boolean }) {
   return (
     <label
       style={{
@@ -113,8 +113,9 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
         fontWeight:    "var(--weight-semibold)",
         textTransform: "uppercase",
         letterSpacing: "var(--tracking-wider)",
-        color:         "rgba(241,240,235,0.6)",
+        color:         isDark ? "rgba(241,240,235,0.6)" : "rgba(4,3,4,0.6)",
         marginBottom:  "0.4rem",
+        transition:    "color 0.3s ease",
       }}
     >
       {children}
@@ -149,26 +150,29 @@ export default function ContactSection({ id }: { id: string }) {
 
   useEffect(() => setMounted(true), []);
 
-  const overlayOpacity = mounted && theme === "light" ? "0.55" : "0.75";
+  const isDark = mounted ? theme === "dark" : true;
+  const overlayColor = isDark ? "rgba(4,3,4,0.75)" : "rgba(241,240,235,0.65)";
+  const textColor = isDark ? "#F1F0EB" : "#040304";
+  const mutedTextColor = isDark ? "rgba(241,240,235,0.5)" : "rgba(4,3,4,0.6)";
+  const cardBg = isDark ? "rgba(4,3,4,0.65)" : "rgba(255,255,255,0.9)";
+  const inputBg = isDark ? "rgba(241,240,235,0.08)" : "rgba(4,3,4,0.04)";
+  const inputBorder = isDark ? "rgba(241,240,235,0.15)" : "rgba(4,3,4,0.12)";
 
   // ── react-hook-form setup ──────────────────
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting, dirtyFields },
+    formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
-    mode: "onTouched",   // validate on blur, re-validate on change
+    mode: "onTouched",
     defaultValues: { name: "", email: "", subject: "", message: "" },
   });
 
-  // ── Submit handler ─────────────────────────
   const onSubmit = async (data: ContactFormData) => {
     setSubmitState("submitting");
     try {
-      // Replace with your actual API call:
-      // await fetch("/api/contact", { method: "POST", body: JSON.stringify(data) })
-      await new Promise((res) => setTimeout(res, 1400));  // simulate network
+      await new Promise((res) => setTimeout(res, 1400));
       console.log("Form submitted:", data);
       setSubmitState("success");
       reset();
@@ -190,14 +194,18 @@ export default function ContactSection({ id }: { id: string }) {
           src="/contact/contact-bg.jpg"
           alt=""
           fill
-          style={{ objectFit: "cover", objectPosition: "center" }}
+          style={{ 
+            objectFit: "cover", 
+            objectPosition: "center",
+            filter: isDark ? "none" : "brightness(1.1) contrast(1.05)",
+          }}
           aria-hidden="true"
         />
         <div
           style={{
             position:        "absolute",
             inset:           0,
-            backgroundColor: `rgba(4,3,4,${overlayOpacity})`,
+            backgroundColor: overlayColor,
             transition:      "background-color 0.4s ease",
           }}
         />
@@ -258,8 +266,9 @@ export default function ContactSection({ id }: { id: string }) {
                       fontWeight:    "var(--weight-semibold)",
                       textTransform: "uppercase",
                       letterSpacing: "var(--tracking-wider)",
-                      color:         "rgba(241,240,235,0.5)",
+                      color:         mutedTextColor,
                       marginBottom:  "0.2rem",
+                      transition:    "color 0.3s ease",
                     }}
                   >
                     {item.label}
@@ -272,7 +281,7 @@ export default function ContactSection({ id }: { id: string }) {
                       fontFamily:    "var(--font-primary)",
                       fontSize:      "var(--text-base)",
                       fontWeight:    "var(--weight-semibold)",
-                      color:         "#F1F0EB",
+                      color:         textColor,
                       textDecoration:"none",
                       transition:    "color 0.2s",
                     }}
@@ -280,7 +289,7 @@ export default function ContactSection({ id }: { id: string }) {
                       ((e.currentTarget as HTMLAnchorElement).style.color = "#D5A310")
                     }
                     onMouseLeave={(e) =>
-                      ((e.currentTarget as HTMLAnchorElement).style.color = "#F1F0EB")
+                      ((e.currentTarget as HTMLAnchorElement).style.color = textColor)
                     }
                   >
                     {item.value}
@@ -301,11 +310,13 @@ export default function ContactSection({ id }: { id: string }) {
         >
           <div
             style={{
-              backgroundColor: "rgba(4,3,4,0.65)",
-              backdropFilter:  "blur(8px)",
-              border:          "1px solid rgba(241,240,235,0.1)",
-              borderRadius:    "6px",
+              backgroundColor: cardBg,
+              backdropFilter:  "blur(12px)",
+              border:          `1px solid ${isDark ? "rgba(241,240,235,0.1)" : "rgba(4,3,4,0.08)"}`,
+              borderRadius:    "8px",
               padding:         "2.5rem",
+              boxShadow:       isDark ? "none" : "0 10px 30px rgba(0,0,0,0.05)",
+              transition:      "background-color 0.3s ease, border-color 0.3s ease",
             }}
           >
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -316,7 +327,7 @@ export default function ContactSection({ id }: { id: string }) {
                   className="max-sm:grid-cols-1">
                   {/* Name */}
                   <div>
-                    <FieldLabel>Name</FieldLabel>
+                    <FieldLabel isDark={isDark}>Name</FieldLabel>
                     <input
                       type="text"
                       placeholder="Your name"
@@ -328,17 +339,19 @@ export default function ContactSection({ id }: { id: string }) {
                       })}
                       style={{
                         ...inputBase,
-                        border: errors.name ? inputErrorStyle : inputNormalStyle,
+                        color:           textColor,
+                        backgroundColor: inputBg,
+                        border: errors.name ? inputErrorStyle : inputBorder,
                       }}
                       onFocus={(e)  => { if (!errors.name) e.currentTarget.style.border = inputFocusStyle; }}
-                      onBlur={(e)   => { e.currentTarget.style.border = errors.name ? inputErrorStyle : inputNormalStyle; }}
+                      onBlur={(e)   => { e.currentTarget.style.border = errors.name ? inputErrorStyle : inputBorder; }}
                     />
                     <ErrorMsg msg={errors.name?.message} />
                   </div>
 
                   {/* Email */}
                   <div>
-                    <FieldLabel>E mail</FieldLabel>
+                    <FieldLabel isDark={isDark}>E mail</FieldLabel>
                     <input
                       type="email"
                       placeholder="your@email.com"
@@ -352,10 +365,12 @@ export default function ContactSection({ id }: { id: string }) {
                       })}
                       style={{
                         ...inputBase,
-                        border: errors.email ? inputErrorStyle : inputNormalStyle,
+                        color:           textColor,
+                        backgroundColor: inputBg,
+                        border: errors.email ? inputErrorStyle : inputBorder,
                       }}
                       onFocus={(e)  => { if (!errors.email) e.currentTarget.style.border = inputFocusStyle; }}
-                      onBlur={(e)   => { e.currentTarget.style.border = errors.email ? inputErrorStyle : inputNormalStyle; }}
+                      onBlur={(e)   => { e.currentTarget.style.border = errors.email ? inputErrorStyle : inputBorder; }}
                     />
                     <ErrorMsg msg={errors.email?.message} />
                   </div>
@@ -363,7 +378,7 @@ export default function ContactSection({ id }: { id: string }) {
 
                 {/* Row 2: Subject */}
                 <div>
-                  <FieldLabel>Subject</FieldLabel>
+                  <FieldLabel isDark={isDark}>Subject</FieldLabel>
                   <input
                     type="text"
                     placeholder="What is this about?"
@@ -374,17 +389,19 @@ export default function ContactSection({ id }: { id: string }) {
                     })}
                     style={{
                       ...inputBase,
-                      border: errors.subject ? inputErrorStyle : inputNormalStyle,
+                      color:           textColor,
+                      backgroundColor: inputBg,
+                      border: errors.subject ? inputErrorStyle : inputBorder,
                     }}
                     onFocus={(e)  => { if (!errors.subject) e.currentTarget.style.border = inputFocusStyle; }}
-                    onBlur={(e)   => { e.currentTarget.style.border = errors.subject ? inputErrorStyle : inputNormalStyle; }}
+                    onBlur={(e)   => { e.currentTarget.style.border = errors.subject ? inputErrorStyle : inputBorder; }}
                   />
                   <ErrorMsg msg={errors.subject?.message} />
                 </div>
 
                 {/* Row 3: Message textarea */}
                 <div>
-                  <FieldLabel>Message</FieldLabel>
+                  <FieldLabel isDark={isDark}>Message</FieldLabel>
                   <textarea
                     rows={5}
                     placeholder="Tell us about your fitness goals..."
@@ -395,12 +412,14 @@ export default function ContactSection({ id }: { id: string }) {
                     })}
                     style={{
                       ...inputBase,
-                      resize:    "vertical",
-                      minHeight: "120px",
-                      border:    errors.message ? inputErrorStyle : inputNormalStyle,
+                      color:           textColor,
+                      backgroundColor: inputBg,
+                      resize:          "vertical",
+                      minHeight:       "120px",
+                      border:          errors.message ? inputErrorStyle : inputBorder,
                     }}
                     onFocus={(e)  => { if (!errors.message) e.currentTarget.style.border = inputFocusStyle; }}
-                    onBlur={(e)   => { e.currentTarget.style.border = errors.message ? inputErrorStyle : inputNormalStyle; }}
+                    onBlur={(e)   => { e.currentTarget.style.border = errors.message ? inputErrorStyle : inputBorder; }}
                   />
                   <ErrorMsg msg={errors.message?.message} />
                 </div>

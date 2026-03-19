@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 
 // ─── Social icon SVGs ─────────────────────────────────────────
 const FacebookIcon = () => (
@@ -34,12 +36,17 @@ const SOCIAL_LINKS = [
   { label: "Email",     href: "mailto:info@fitness.com", icon: <MailIcon />      },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// Hero section — always dark (#040304) regardless of theme.
-// In the screenshot both dark and light mode show the same
-// black hero — only the About section below changes.
-// ─────────────────────────────────────────────────────────────
 export default function HeroSection({ id }: { id: string }) {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted ? theme === "dark" : true;
+  const bgMain = isDark ? "#040304" : "#F1F0EB";
+  const textColor = isDark ? "#F1F0EB" : "#040304";
+  const mutedTextColor = isDark ? "rgba(241,240,235,0.65)" : "rgba(4,3,4,0.65)";
+
   return (
     <section
       id={id}
@@ -49,7 +56,8 @@ export default function HeroSection({ id }: { id: string }) {
         display:         "flex",
         alignItems:      "center",
         overflow:        "hidden",
-        backgroundColor: "#040304",   // always black — never inherits theme
+        backgroundColor: bgMain,
+        transition:      "background-color 0.3s ease",
       }}
     >
       {/* ── Athlete image — right 45%, full height ── */}
@@ -69,15 +77,20 @@ export default function HeroSection({ id }: { id: string }) {
           fill
           priority
           sizes="48vw"
-          style={{ objectFit: "cover", objectPosition: "center top" }}
+          style={{ 
+            objectFit: "cover", 
+            objectPosition: "center top",
+            filter: isDark ? "none" : "brightness(1.1) contrast(1.05)",
+          }}
         />
 
-        {/* Fade left edge into black */}
+        {/* Fade left edge into background color */}
         <div
           style={{
             position:   "absolute",
             inset:      0,
-            background: "linear-gradient(to right, #040304 0%, transparent 40%)",
+            background: `linear-gradient(to right, ${bgMain} 0%, transparent 40%)`,
+            transition: "background 0.3s ease",
           }}
         />
         {/* Fade bottom edge */}
@@ -85,7 +98,8 @@ export default function HeroSection({ id }: { id: string }) {
           style={{
             position:   "absolute",
             inset:      0,
-            background: "linear-gradient(to top, #040304 0%, transparent 20%)",
+            background: `linear-gradient(to top, ${bgMain} 0%, transparent 20%)`,
+            transition: "background 0.3s ease",
           }}
         />
       </div>
@@ -97,8 +111,10 @@ export default function HeroSection({ id }: { id: string }) {
           inset:          0,
           zIndex:         1,
           pointerEvents:  "none",
-          background:
-            "linear-gradient(to right, rgba(4,3,4,0.9) 0%, rgba(4,3,4,0.6) 52%, rgba(4,3,4,0) 100%)",
+          background: isDark
+            ? "linear-gradient(to right, rgba(4,3,4,0.9) 0%, rgba(4,3,4,0.6) 52%, rgba(4,3,4,0) 100%)"
+            : "linear-gradient(to right, rgba(241,240,235,0.85) 0%, rgba(241,240,235,0.4) 52%, rgba(241,240,235,0) 100%)",
+          transition: "background 0.3s ease",
         }}
       />
 
@@ -126,9 +142,10 @@ export default function HeroSection({ id }: { id: string }) {
               lineHeight:    "var(--leading-tight)",
               textTransform: "uppercase",
               letterSpacing: "-0.01em",
-              color:         "#F1F0EB",             // always cream on dark hero
+              color:         textColor,
               marginBottom:  "1.5rem",
               animationDelay:"100ms",
+              transition:    "color 0.3s ease",
             }}
           >
             Reach Your<br />
@@ -144,10 +161,11 @@ export default function HeroSection({ id }: { id: string }) {
               fontSize:      "var(--text-base)",
               fontWeight:    "var(--weight-regular)",
               lineHeight:    "var(--leading-normal)",
-              color:         "rgba(241,240,235,0.65)",
+              color:         mutedTextColor,
               maxWidth:      "460px",
               marginBottom:  "2.5rem",
               animationDelay:"250ms",
+              transition:    "color 0.3s ease",
             }}
           >
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -166,7 +184,7 @@ export default function HeroSection({ id }: { id: string }) {
               animationDelay:"400ms",
             }}
           >
-            {/* LEARN MORE — white outline, matches Figma exactly */}
+            {/* LEARN MORE — outline button */}
             <button
               style={{
                 fontFamily:    "var(--font-primary)",
@@ -176,10 +194,10 @@ export default function HeroSection({ id }: { id: string }) {
                 letterSpacing: "var(--tracking-widest)",
                 padding:       "0.8rem 2.2rem",
                 background:    "transparent",
-                color:         "#F1F0EB",
-                border:        "1.5px solid #F1F0EB",
+                color:         textColor,
+                border:        `1.5px solid ${textColor}`,
                 cursor:        "pointer",
-                transition:    "border-color 0.2s, color 0.2s",
+                transition:    "border-color 0.2s, color 0.2s, background-color 0.2s",
               }}
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLButtonElement;
@@ -188,8 +206,8 @@ export default function HeroSection({ id }: { id: string }) {
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = "#F1F0EB";
-                el.style.color       = "#F1F0EB";
+                el.style.borderColor = textColor;
+                el.style.color       = textColor;
               }}
               onClick={() =>
                 document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })
@@ -269,7 +287,8 @@ export default function HeroSection({ id }: { id: string }) {
             fontWeight:    "var(--weight-semibold)",
             textTransform: "uppercase",
             letterSpacing: "var(--tracking-widest)",
-            color:         "rgba(241,240,235,0.4)",
+            color:         isDark ? "rgba(241,240,235,0.4)" : "rgba(4,3,4,0.4)",
+            transition:    "color 0.3s ease",
           }}
           className="hidden sm:inline"
         >
@@ -277,7 +296,12 @@ export default function HeroSection({ id }: { id: string }) {
         </span>
         <div
           className="hidden sm:block"
-          style={{ width: "1.75rem", height: "1px", backgroundColor: "rgba(241,240,235,0.2)" }}
+          style={{ 
+            width: "1.75rem", 
+            height: "1px", 
+            backgroundColor: isDark ? "rgba(241,240,235,0.2)" : "rgba(4,3,4,0.2)",
+            transition: "background-color 0.3s ease",
+          }}
         />
         {SOCIAL_LINKS.map((s) => (
           <a
@@ -286,12 +310,15 @@ export default function HeroSection({ id }: { id: string }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={s.label}
-            style={{ color: "rgba(241,240,235,0.5)", transition: "color 0.2s" }}
+            style={{ 
+              color: isDark ? "rgba(241,240,235,0.5)" : "rgba(4,3,4,0.5)", 
+              transition: "color 0.2s" 
+            }}
             onMouseEnter={(e) =>
               ((e.currentTarget as HTMLAnchorElement).style.color = "#D5A310")
             }
             onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(241,240,235,0.5)")
+              ((e.currentTarget as HTMLAnchorElement).style.color = isDark ? "rgba(241,240,235,0.5)" : "rgba(4,3,4,0.5)")
             }
           >
             {s.icon}

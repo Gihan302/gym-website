@@ -57,8 +57,9 @@ export default function PricingSection({ id }: { id: string }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // Overlay: darker in dark mode, slightly lighter in light mode
-  const overlayOpacity = mounted && theme === "light" ? "0.60" : "0.78";
+  const isDark = mounted ? theme === "dark" : true;
+  const overlayColor = isDark ? "rgba(4,3,4,0.78)" : "rgba(241,240,235,0.65)";
+  const textColor = isDark ? "#F1F0EB" : "#040304";
 
   return (
     <section
@@ -71,14 +72,18 @@ export default function PricingSection({ id }: { id: string }) {
           src="/pricing/pricing-bg.jpg"
           alt=""
           fill
-          style={{ objectFit: "cover", objectPosition: "center top" }}
+          style={{ 
+            objectFit: "cover", 
+            objectPosition: "center top",
+            filter: isDark ? "none" : "brightness(1.1) contrast(1.05)",
+          }}
           aria-hidden="true"
         />
         <div
           style={{
             position:        "absolute",
             inset:           0,
-            backgroundColor: `rgba(4,3,4,${overlayOpacity})`,
+            backgroundColor: overlayColor,
             transition:      "background-color 0.4s ease",
           }}
         />
@@ -100,8 +105,9 @@ export default function PricingSection({ id }: { id: string }) {
               display: "inline-block",
               fontFamily: "var(--font-primary)", fontSize: "var(--text-label)",
               fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
-              letterSpacing: "var(--tracking-widest)", color: "#F1F0EB",
+              letterSpacing: "var(--tracking-widest)", color: textColor,
               paddingBottom: "0.35rem", borderBottom: "2px solid #D5A310", marginBottom: "1rem",
+              transition: "color 0.3s ease",
             }}
           >
             Our Pricing
@@ -110,7 +116,8 @@ export default function PricingSection({ id }: { id: string }) {
             style={{
               fontFamily: "var(--font-primary)", fontSize: "var(--text-h1)",
               fontWeight: "var(--weight-bold)", textTransform: "uppercase",
-              lineHeight: "var(--leading-tight)", color: "#F1F0EB", margin: 0,
+              lineHeight: "var(--leading-tight)", color: textColor, margin: 0,
+              transition: "color 0.3s ease",
             }}
           >
             Choose Your{" "}
@@ -128,7 +135,7 @@ export default function PricingSection({ id }: { id: string }) {
           className="max-md:grid-cols-1"
         >
           {PLANS.map((plan, i) => (
-            <PricingCard key={plan.id} plan={plan} index={i} inView={gridIn} />
+            <PricingCard key={plan.id} plan={plan} index={i} inView={gridIn} isDark={isDark} />
           ))}
         </div>
 
@@ -138,11 +145,15 @@ export default function PricingSection({ id }: { id: string }) {
 }
 
 function PricingCard({
-  plan, index, inView,
+  plan, index, inView, isDark,
 }: {
-  plan: (typeof PLANS)[0]; index: number; inView: boolean;
+  plan: (typeof PLANS)[0]; index: number; inView: boolean; isDark: boolean;
 }) {
   const [hov, setHov] = useState(false);
+  const cardBg = isDark ? "rgba(4,3,4,0.72)" : "rgba(255,255,255,0.85)";
+  const cardTextColor = isDark ? "#F1F0EB" : "#040304";
+  const mutedTextColor = isDark ? "rgba(241,240,235,0.6)" : "rgba(4,3,4,0.65)";
+  const borderColor = isDark ? "rgba(241,240,235,0.12)" : "rgba(4,3,4,0.12)";
 
   return (
     <div
@@ -150,13 +161,13 @@ function PricingCard({
       onMouseLeave={() => setHov(false)}
       className={inView ? "animate-fade-up" : "opacity-0"}
       style={{
-        // Dark semi-transparent card bg — same in both modes (always on bg image)
-        backgroundColor: hov ? "rgba(213,163,16,0.12)" : "rgba(4,3,4,0.72)",
-        border:          `1px solid ${hov || plan.featured ? "#D5A310" : "rgba(241,240,235,0.12)"}`,
+        backgroundColor: hov ? "rgba(213,163,16,0.12)" : cardBg,
+        border:          `1px solid ${hov || plan.featured ? "#D5A310" : borderColor}`,
         padding:         "2.5rem 2rem",
         cursor:          "default",
         animationDelay:  `${index * 150}ms`,
-        backdropFilter:  "blur(4px)",
+        backdropFilter:  "blur(8px)",
+        transition:      "background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease",
       }}
     >
       {/* "Our Pricing" label */}
@@ -164,7 +175,7 @@ function PricingCard({
         style={{
           fontFamily: "var(--font-primary)", fontSize: "var(--text-sm)",
           fontWeight: "var(--weight-semibold)", textTransform: "uppercase",
-          letterSpacing: "var(--tracking-wider)", color: "#F1F0EB",
+          letterSpacing: "var(--tracking-wider)", color: cardTextColor,
           marginBottom: "1.25rem",
         }}
       >
@@ -176,7 +187,7 @@ function PricingCard({
         style={{
           fontFamily: "var(--font-primary)", fontSize: "clamp(1.8rem, 3vw, 2.4rem)",
           fontWeight: "var(--weight-bold)", textTransform: "uppercase",
-          color: "#F1F0EB", marginBottom: "0.5rem", lineHeight: 1.1,
+          color: cardTextColor, marginBottom: "0.5rem", lineHeight: 1.1,
         }}
       >
         {plan.price}
@@ -195,14 +206,14 @@ function PricingCard({
       </p>
 
       {/* Thin divider */}
-      <div style={{ height: "1px", backgroundColor: "rgba(241,240,235,0.1)", marginBottom: "1.5rem" }} />
+      <div style={{ height: "1px", backgroundColor: isDark ? "rgba(241,240,235,0.1)" : "rgba(4,3,4,0.1)", marginBottom: "1.5rem" }} />
 
       {/* Description */}
       <p
         style={{
           fontFamily: "var(--font-primary)", fontSize: "var(--text-xs)",
           fontWeight: "var(--weight-regular)", lineHeight: "var(--leading-normal)",
-          color: "rgba(241,240,235,0.6)",
+          color: mutedTextColor,
         }}
       >
         {plan.description}
