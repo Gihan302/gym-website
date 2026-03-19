@@ -72,7 +72,7 @@ export default function HeroSection({ id }: { id: string }) {
         className="hidden md:block animate-fade-in"
       >
         <Image
-          src="/Hero image.jpg"
+          src="/hero-image.jpg"
           alt="Fitness athlete"
           fill
           priority
