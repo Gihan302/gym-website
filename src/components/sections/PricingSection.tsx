@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { getAssetPath } from "../../lib/utils";
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -69,7 +70,7 @@ export default function PricingSection({ id }: { id: string }) {
       {/* ── BG image + overlay ──────────────────── */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <Image
-          src="/pricing/pricing-bg.jpg"
+          src={getAssetPath("/pricing/pricing-bg.jpg")}
           alt=""
           fill
           style={{ 

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
+import { getAssetPath } from "../../lib/utils";
 
 // ─── Social icon SVGs ─────────────────────────────────────────
 const FacebookIcon = () => (
@@ -72,7 +73,7 @@ export default function HeroSection({ id }: { id: string }) {
         className="hidden md:block animate-fade-in"
       >
         <Image
-          src="/hero-image.jpg"
+          src={getAssetPath("/hero-image.jpg")}
           alt="Fitness athlete"
           fill
           priority

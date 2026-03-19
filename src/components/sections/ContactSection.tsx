@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { getAssetPath } from "../../lib/utils";
 import { useForm } from "react-hook-form";
 
 // ─────────────────────────────────────────────
@@ -191,7 +192,7 @@ export default function ContactSection({ id }: { id: string }) {
       {/* ── Background image + overlay ─────────── */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <Image
-          src="/contact/contact-bg.jpg"
+          src={getAssetPath("/contact/contact-bg.jpg")}
           alt=""
           fill
           style={{ 

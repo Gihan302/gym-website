@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { getAssetPath } from "../../lib/utils";
 
 // ─── useInView ────────────────────────────────────────────────
 function useInView(threshold = 0.1) {
@@ -137,7 +138,7 @@ function TestimonialSlide({
         }}
       >
         <Image
-          src={testimonial.avatar}
+          src={getAssetPath(testimonial.avatar)}
           alt={testimonial.name}
           fill
           style={{ objectFit: "cover" }}

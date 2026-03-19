@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { getAssetPath } from "../../lib/utils";
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -59,7 +60,7 @@ export default function GallerySection({ id }: { id: string }) {
       {/* ── Background gym image ─────────────────── */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <Image
-          src="/gallery/gallery-bg.jpg"
+          src={getAssetPath("/gallery/gallery-bg.jpg")}
           alt=""
           fill
           style={{ 
@@ -229,7 +230,7 @@ function GalleryImage({
       }}
     >
       <Image
-        src={src}
+        src={getAssetPath(src)}
         alt={alt}
         fill
         sizes="(max-width: 640px) 100vw, 25vw"

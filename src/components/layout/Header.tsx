@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import { NAV_LINKS } from "../../lib/constants";
+import { getAssetPath } from "../../lib/utils";
 
 export default function Header() {
   const [scrolled,    setScrolled]    = useState(false);
@@ -135,7 +136,7 @@ export default function Header() {
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
                 <Image
-                  src="/logo.png"
+                  src={getAssetPath("/logo.png")}
                   alt="Fitness Gym Logo"
                   width={200}
                   height={70}

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { getAssetPath } from "../../lib/utils";
 
 // ─────────────────────────────────────────────────────────────
 // useInView hook
@@ -337,7 +338,7 @@ export default function AboutSection({ id }: { id: string }) {
             {/* Main image */}
             <div style={{ position: "relative", zIndex: 1 }}>
               <Image
-                src={slide.image}
+                src={getAssetPath(slide.image)}
                 alt={slide.imageAlt}
                 width={620}
                 height={520}

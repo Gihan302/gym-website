@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useTheme } from "next-themes";
+import { getAssetPath } from "../../lib/utils";
 
 // ─── useInView ────────────────────────────────────────────────
 function useInView(threshold = 0.1) {
@@ -113,7 +114,7 @@ function ServiceCard({
     >
       <div style={{ position: "relative", aspectRatio: "4/3" }}>
         <Image
-          src={service.image}
+          src={getAssetPath(service.image)}
           alt={service.alt}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
@@ -287,7 +288,7 @@ export default function ServicesSection({ id }: { id: string }) {
     >
       {/* BG image */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-        <Image src="/services/services-bg.jpg" alt="" fill
+        <Image src={getAssetPath("/services/services-bg.jpg")} alt="" fill
           style={{ objectFit: "cover", objectPosition: "center", filter: isDark ? "none" : "brightness(1.1) contrast(1.05)", transition: "filter 0.4s ease" }}
           aria-hidden="true"
         />
