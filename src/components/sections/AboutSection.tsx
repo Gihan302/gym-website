@@ -301,11 +301,11 @@ export default function AboutSection({ id }: { id: string }) {
             gridTemplateAreas:   isImageLeft
               ? '"image text"'
               : '"text image"',
-            gap:                 "4rem",
+            gap:                 "clamp(2.5rem, 5vw, 4rem)",
             alignItems:          "center",
             minHeight:           "520px",
           }}
-          className="max-lg:grid-cols-1 max-lg:grid-areas-none"
+          className="max-lg:grid-cols-1 max-lg:flex max-lg:flex-col"
         >
 
           {/* ━━━ IMAGE COLUMN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -318,9 +318,11 @@ export default function AboutSection({ id }: { id: string }) {
               paddingRight:  isImageLeft ? "1.5rem" : 0,
               paddingLeft:   isImageLeft ? 0 : "1.5rem",
               ...imageEnter,
+              width: "100%",
             }}
+            className="max-lg:!px-0 max-lg:!pb-6"
           >
-            {/* Gold offset block */}
+            {/* Gold offset block — hide or adjust on mobile if needed, keeping for style */}
             <div
               style={{
                 position:        "absolute",
@@ -333,6 +335,7 @@ export default function AboutSection({ id }: { id: string }) {
                 zIndex:          0,
                 transition:      "opacity 0.4s ease",
               }}
+              className="max-lg:hidden"
             />
 
             {/* Main image */}
@@ -345,6 +348,7 @@ export default function AboutSection({ id }: { id: string }) {
                 style={{
                   width:     "100%",
                   height:    "auto",
+                  aspectRatio: "4/3",
                   objectFit: "cover",
                   display:   "block",
                   // Subtle image reveal

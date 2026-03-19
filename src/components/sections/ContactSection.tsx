@@ -219,13 +219,13 @@ export default function ContactSection({ id }: { id: string }) {
           zIndex:   1,
           maxWidth: "1280px",
           margin:   "0 auto",
-          padding:  "0 2rem",
+          padding:  "0 1.5rem",
           display:  "grid",
           gridTemplateColumns: "1fr 1.6fr",
-          gap:      "5rem",
+          gap:      "3rem",
           alignItems:"center",
         }}
-        className="max-lg:grid-cols-1 max-lg:gap-10"
+        className="max-lg:grid-cols-1 max-lg:gap-12"
       >
 
         {/* ━━━ LEFT: Contact info ━━━━━━━━━━━━━━━━ */}
@@ -233,18 +233,18 @@ export default function ContactSection({ id }: { id: string }) {
           ref={leftRef}
           className={leftIn ? "animate-fade-left" : "opacity-0"}
           style={{
-            display: "flex", flexDirection: "column", gap: "2rem"
+            display: "flex", flexDirection: "column", gap: "1.5rem"
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             {CONTACT_INFO.map((item) => (
               <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
 
                 {/* Icon box */}
                 <div
                   style={{
-                    width:           "2.5rem",
-                    height:          "2.5rem",
+                    width:           "2.25rem",
+                    height:          "2.25rem",
                     backgroundColor: "#D5A310",
                     borderRadius:    "4px",
                     display:         "flex",
@@ -268,7 +268,7 @@ export default function ContactSection({ id }: { id: string }) {
                       textTransform: "uppercase",
                       letterSpacing: "var(--tracking-wider)",
                       color:         mutedTextColor,
-                      marginBottom:  "0.2rem",
+                      marginBottom:  "0.1rem",
                       transition:    "color 0.3s ease",
                     }}
                   >
@@ -280,7 +280,7 @@ export default function ContactSection({ id }: { id: string }) {
                     rel="noopener noreferrer"
                     style={{
                       fontFamily:    "var(--font-primary)",
-                      fontSize:      "var(--text-base)",
+                      fontSize:      "clamp(0.9rem, 2vw, 1.1rem)",
                       fontWeight:    "var(--weight-semibold)",
                       color:         textColor,
                       textDecoration:"none",
@@ -315,7 +315,7 @@ export default function ContactSection({ id }: { id: string }) {
               backdropFilter:  "blur(12px)",
               border:          `1px solid ${isDark ? "rgba(241,240,235,0.1)" : "rgba(4,3,4,0.08)"}`,
               borderRadius:    "8px",
-              padding:         "2.5rem",
+              padding:         "clamp(1.5rem, 5vw, 2.5rem)",
               boxShadow:       isDark ? "none" : "0 10px 30px rgba(0,0,0,0.05)",
               transition:      "background-color 0.3s ease, border-color 0.3s ease",
             }}

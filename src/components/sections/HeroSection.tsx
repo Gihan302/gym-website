@@ -61,7 +61,29 @@ export default function HeroSection({ id }: { id: string }) {
         transition:      "background-color 0.3s ease",
       }}
     >
-      {/* ── Athlete image — right 45%, full height ── */}
+      {/* ── Mobile Background Image (Only visible on small screens) ── */}
+      <div
+        className="block md:hidden"
+        style={{
+          position: "absolute",
+          inset:    0,
+          zIndex:   0,
+        }}
+      >
+        <Image
+          src={getAssetPath("/hero-image.jpg")}
+          alt="Fitness athlete mobile bg"
+          fill
+          priority
+          style={{ 
+            objectFit: "cover", 
+            objectPosition: "center top",
+            filter: isDark ? "brightness(0.4) contrast(1.05)" : "brightness(0.9) contrast(1.05)",
+          }}
+        />
+      </div>
+
+      {/* ── Desktop Athlete image — right 48% (Only visible on md and up) ── */}
       <div
         style={{
           position: "absolute",
@@ -69,12 +91,13 @@ export default function HeroSection({ id }: { id: string }) {
           top:      0,
           bottom:   0,
           width:    "48%",
+          zIndex:   0,
         }}
         className="hidden md:block animate-fade-in"
       >
         <Image
           src={getAssetPath("/hero-image.jpg")}
-          alt="Fitness athlete"
+          alt="Fitness athlete desktop"
           fill
           priority
           sizes="48vw"
@@ -113,10 +136,11 @@ export default function HeroSection({ id }: { id: string }) {
           zIndex:         1,
           pointerEvents:  "none",
           background: isDark
-            ? "linear-gradient(to right, rgba(4,3,4,0.9) 0%, rgba(4,3,4,0.6) 52%, rgba(4,3,4,0) 100%)"
-            : "linear-gradient(to right, rgba(241,240,235,0.85) 0%, rgba(241,240,235,0.4) 52%, rgba(241,240,235,0) 100%)",
+            ? "linear-gradient(to right, rgba(4,3,4,0.95) 0%, rgba(4,3,4,0.6) 52%, rgba(4,3,4,0) 100%)"
+            : "linear-gradient(to right, rgba(241,240,235,0.9) 0%, rgba(241,240,235,0.4) 52%, rgba(241,240,235,0) 100%)",
           transition: "background 0.3s ease",
         }}
+        className="md:bg-gradient-to-r"
       />
 
       {/* ── Main content ─────────────────────────── */}
@@ -127,18 +151,18 @@ export default function HeroSection({ id }: { id: string }) {
           width:     "100%",
           maxWidth:  "1280px",
           margin:    "0 auto",
-          padding:   "7rem 2rem 6rem",
+          padding:   "clamp(6rem, 15vh, 9rem) 1.5rem 6rem",
         }}
       >
-        {/* Text column — left 52% */}
-        <div style={{ maxWidth: "clamp(300px, 52%, 580px)" }}>
+        {/* Text column — full width on mobile, left 52% on desktop */}
+        <div style={{ maxWidth: "clamp(300px, 100%, 580px)" }} className="md:max-w-[52%]">
 
           {/* Headline */}
           <h1
             className="animate-fade-left"
             style={{
               fontFamily:    "var(--font-primary)",
-              fontSize:      "var(--text-hero)",
+              fontSize:      "clamp(2.5rem, 8vw, 5rem)", // Responsive font size
               fontWeight:    "var(--weight-bold)",
               lineHeight:    "var(--leading-tight)",
               textTransform: "uppercase",
@@ -159,20 +183,17 @@ export default function HeroSection({ id }: { id: string }) {
             className="animate-fade-left"
             style={{
               fontFamily:    "var(--font-primary)",
-              fontSize:      "var(--text-base)",
+              fontSize:      "clamp(0.9rem, 2vw, 1.1rem)",
               fontWeight:    "var(--weight-regular)",
               lineHeight:    "var(--leading-normal)",
-              color:         mutedTextColor,
+              color:         mounted ? (theme === 'dark' ? "rgba(241,240,235,0.85)" : "rgba(4,3,4,0.85)") : mutedTextColor,
               maxWidth:      "460px",
               marginBottom:  "2.5rem",
               animationDelay:"250ms",
               transition:    "color 0.3s ease",
             }}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+            Push your boundaries and transform your physique with our world-class facilities and expert guidance. Join a community dedicated to excellence and results.
           </p>
 
           {/* CTA buttons */}
@@ -193,13 +214,16 @@ export default function HeroSection({ id }: { id: string }) {
                 fontWeight:    "var(--weight-bold)",
                 textTransform: "uppercase",
                 letterSpacing: "var(--tracking-widest)",
-                padding:       "0.8rem 2.2rem",
+                padding:       "clamp(0.7rem, 2vw, 0.9rem) 2.2rem",
                 background:    "transparent",
                 color:         textColor,
                 border:        `1.5px solid ${textColor}`,
                 cursor:        "pointer",
                 transition:    "border-color 0.2s, color 0.2s, background-color 0.2s",
+                flex:          "1 1 auto", // Make buttons flexible on mobile
+                textAlign:     "center",
               }}
+              className="max-sm:w-full"
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLButtonElement;
                 el.style.borderColor = "#D5A310";
