@@ -1,16 +1,8 @@
 # 🏋️ gym-website
 
-A modern, fully responsive single-page gym website built with **Next.js 14**, featuring dark/light mode, smooth animations, and an interactive diet planner.
+A modern, fully responsive single-page gym website built with **Next.js 14**, featuring dark/light mode, smooth animations.
 
 🌐 **Live Site:** [https://gihan302.github.io/gym-website/](https://gihan302.github.io/gym-website/)
-
----
-
-## 📸 Preview
-
-| Dark Mode | Light Mode |
-|-----------|------------|
-| ![Dark mode](.github/preview-dark.png) | ![Light mode](.github/preview-light.png) |
 
 ---
 
