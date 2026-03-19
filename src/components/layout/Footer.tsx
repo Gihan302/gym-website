@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { NAV_LINKS } from "../../lib/constants";
+import { getAssetPath } from "../../lib/utils";
 
 // ─── Social icons ─────────────────────────────────────────────
 const SocialIcons = {
@@ -192,7 +193,7 @@ export default function Footer() {
               style={{ display: "inline-block", lineHeight: 0 }}
             >
               <Image
-                src="/logo.png"
+                src={getAssetPath("/logo.png")}
                 alt="Fitness Gym Logo"
                 width={200}
                 height={70}
